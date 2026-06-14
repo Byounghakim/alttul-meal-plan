@@ -203,7 +203,7 @@
   <!-- Header -->
   <header>
     <h1>🍱 <span>알뜰이</span> 2주 식단표</h1>
-    <p class="subtitle">6/16(화) ~ 6/30(화) · 4인 가족 · <strong>현금 추가 0원</strong></p>
+    <p class="subtitle">6/16(화) ~ 6/30(화) · 4인 가족 · 하루 <strong>두끼</strong> (조식+석식) · <strong>현금 추가 0원</strong></p>
     <div class="badge-row">
       <span class="badge success">✅ 추가 현금 투입 0원</span>
       <span class="badge warn">🚨 예산 초과 2,880원</span>
@@ -221,7 +221,7 @@
     <div class="summary-card">
       <div class="label">식사 일수</div>
       <div class="value">14일</div>
-      <div class="sub">아침+저녁 (토 외식 제외)</div>
+      <div class="sub">조식+석식 (토 외식 제외)</div>
     </div>
     <div class="summary-card">
       <div class="label">전략</div>
@@ -229,9 +229,9 @@
       <div class="sub">있는 재료만으로 버티기</div>
     </div>
     <div class="summary-card">
-      <div class="label">매일 아침</div>
-      <div class="value">🥛 기본</div>
-      <div class="sub">우유+계란+밥+김치</div>
+      <div class="label">조식</div>
+      <div class="value">🍳 매일 변경</div>
+      <div class="sub">고정 아님 · 재료 소진 맞춤</div>
     </div>
   </div>
 
@@ -239,8 +239,8 @@
   <div class="strategy-box">
     <strong>전략</strong> — 추가 지출 0원. 있는 재료만으로 14일 버티기.<br>
     <strong>토요일(6/20)</strong> — 외식, 식단 제외<br>
-    <strong>아침</strong> — 매일 동일: 우유 + 계란후라이(or 계란찜) + 밥 + 김치<br>
-    <strong>레시피</strong> — 모든 저녁 메뉴는 <strong>어남선생(류수영)</strong> KBS 〈편스토랑〉 레시피 기반
+    <strong>조식</strong> — 메뉴 매일 변경 (재고 소진 맞춤)<br>
+    <strong>레시피</strong> — 모든 석식 메뉴는 <strong>어남선생(류수영)</strong> KBS 〈편스토랑〉 레시피 기반
   </div>
 
   <!-- ============================== -->
@@ -253,8 +253,8 @@
         <thead>
           <tr>
             <th>요일</th>
-            <th>아침 🥣</th>
-            <th>저녁 🍜</th>
+            <th>조식 🥣</th>
+            <th>석식 🍜</th>
             <th>사용 재료</th>
           </tr>
         </thead>
@@ -263,9 +263,9 @@
           <tr class="week-label"><td colspan="4">1주차 · 6/16(화) ~ 6/21(일)</td></tr>
           <tr>
             <td class="day-label">화<span class="date"> 6/16</span></td>
-            <td>기본 아침</td>
-            <td>🌭 비엔나볶음 + 미역국 + 밥</td>
-            <td><div class="chip-list"><span class="chip">비엔나</span><span class="chip">미역</span><span class="chip">계란</span></div></td>
+            <td>🥣 콩나물국 + 생미역 + 비엔나볶음 + 밥</td>
+            <td>🍜 짜장밥 (2.5인분) + 미역국</td>
+            <td><div class="chip-list"><span class="chip">콩나물</span><span class="chip">생미역</span><span class="chip">비엔나</span><span class="chip">춘장</span><span class="chip">계란</span></div></td>
           </tr>
           <tr>
             <td class="day-label">수<span class="date"> 6/17</span></td>
@@ -364,7 +364,7 @@
   <!-- 어남선생 RECIPE CARDS -->
   <!-- ============================== -->
   <div class="section">
-    <div class="section-title"><span class="emoji">👨‍🍳</span> 어남선생 레시피 — 저녁 메뉴별</div>
+    <div class="section-title"><span class="emoji">👨‍🍳</span> 어남선생 레시피 — 석식 메뉴별</div>
     <p style="font-size:14px;color:var(--text-secondary);margin:-10px 0 18px;line-height:1.6;">
       모든 레시피는 KBS 〈신상출시 편스토랑〉 <strong>어남선생 류수영</strong> 님의 레시피를 기반으로 합니다.
       영상 링크에서 자세한 조리 과정을 확인하세요.
@@ -531,28 +531,6 @@
           <tr><td>카레가루 · 춘장</td><td>O</td><td>카레, 새우카레 · 짜장밥</td></tr>
           <tr><td>콩나물</td><td>1끼 분량</td><td>콩나물국</td></tr>
           <tr><td>김치 · 기본 양념</td><td>O</td><td>찌개/볶음밥/국</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- ============================== -->
-  <!-- BUDGET -->
-  <!-- ============================== -->
-  <div class="section">
-    <div class="section-title"><span class="emoji">💰</span> 최종 결산 (6/30 예상)</div>
-    <div class="table-wrap">
-      <table class="budget-table">
-        <thead>
-          <tr><th>항목</th><th>금액</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>6월 총 식비</td><td><strong>632,880원</strong></td></tr>
-          <tr><td>예산</td><td>630,000원</td></tr>
-          <tr><td>초과</td><td><strong style="color:var(--accent)">🚨 2,880원</strong></td></tr>
-          <tr><td>추가 현금 투입</td><td><strong style="color:#2e7d32">0원 ✅</strong></td></tr>
-          <tr><td>아침 메뉴</td><td>우유+계란+밥+김치 고정</td></tr>
-          <tr><td>저녁 메뉴</td><td>13일 중 매일 변경 + 외식 1회</td></tr>
         </tbody>
       </table>
     </div>

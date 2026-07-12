@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>알뜰이 식단표 + 어남선생 레시피</title>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v2/dist/web/variable/pretendardvariable-dynamic-subset.css">
+  <style>
+    :root {
+      --bg: #f2f0eb;
+      --card: #ffffff;
+      --text: #1e1e1e;
+      --text-secondary: #6b6b6b;
+      --accent: #e74c3c;
+      --accent-light: #fde8e5;
+      --border: #e8e5df;
+      --tag-bg: #f7f6f2;
+      --recipe-tag: #fff3e0;
+      --recipe-tag-text: #e65100;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg);
+      font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    #root {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* Header */
+    header { text-align: center; margin-bottom: 48px; }
+    header h1 {
+      font-size: 28px; font-weight: 700; letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    header h1 span { color: var(--accent); }
+    header .subtitle { font-size: 15px; color: var(--text-secondary); line-height: 1.6; }
+    header .subtitle strong { color: var(--text); }
+    .badge-row {
+      display: flex; justify-content: center; gap: 8px;
+      margin-top: 14px; flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block; padding: 4px 14px; border-radius: 999px;
+      font-size: 13px; font-weight: 500;
+      background: var(--tag-bg); color: var(--text-secondary);
+    }
+    .badge.warn { background: var(--accent-light); color: var(--accent); }
+    .badge.success { background: #e8f5e9; color: #2e7d32; }
+    .badge.recipe { background: var(--recipe-tag); color: var(--recipe-tag-text); }
+
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px; margin-bottom: 40px;
+    }
+    .summary-card {
+      background: var(--card); border-radius: 14px;
+      padding: 18px 20px; border: 1px solid var(--border);
+    }
+    .summary-card .label {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 4px;
+    }
+    .summary-card .value { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+    .summary-card .value.accent { color: var(--accent); }
+    .summary-card .sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+
+    /* Strategy Box */
+    .strategy-box {
+      background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+      padding: 20px 24px; margin-bottom: 40px; line-height: 1.7; font-size: 14px;
+    }
+    .strategy-box strong { color: var(--accent); }
+
+    /* Section */
+    .section { margin-bottom: 40px; }
+    .section-title {
+      font-size: 18px; font-weight: 700; letter-spacing: -0.01em;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .section-title .emoji { font-size: 20px; }
+
+    /* Table */
+    .table-wrap {
+      background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%; border-collapse: collapse; font-size: 14px;
+    }
+    thead th {
+      background: #faf9f6; text-align: left; padding: 14px 16px;
+      font-weight: 600; font-size: 12px; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+    tbody td {
+      padding: 12px 16px; border-bottom: 1px solid #f0ede8;
+      vertical-align: top; line-height: 1.5;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: #faf9f6; }
+    .day-label { font-weight: 600; white-space: nowrap; }
+    .day-label .date { font-weight: 400; color: var(--text-secondary); font-size: 12px; margin-left: 2px; }
+    .recipe-badge {
+      display: inline-block; padding: 1px 8px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; background: var(--recipe-tag);
+      color: var(--recipe-tag-text); margin-left: 4px; white-space: nowrap;
+      cursor: help;
+    }
+    .week-label td {
+      background: #f7f6f2; font-weight: 700; font-size: 13px;
+      color: var(--text-secondary); letter-spacing: 0.02em; padding: 8px 16px;
+    }
+    .chip-list { display: flex; flex-wrap: wrap; gap: 4px; }
+    .chip {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 12px; font-weight: 500; background: var(--tag-bg); color: var(--text-secondary);
+    }
+    .budget-table td:last-child,
+    .budget-table th:last-child { text-align: right; }
+    .budget-table td:first-child { font-weight: 500; }
+
+    /* Recipe Cards */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+      gap: 16px;
+    }
+    .recipe-card {
+      background: var(--card); border-radius: 14px; border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .recipe-card-header {
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .recipe-card-header .r-title {
+      font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;
+    }
+    .recipe-card-header .r-meta {
+      font-size: 12px; color: var(--text-secondary); margin-top: 4px;
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .recipe-card-header .r-meta a {
+      color: var(--accent); text-decoration: none; font-weight: 500;
+    }
+    .recipe-card-header .r-meta a:hover { text-decoration: underline; }
+    .recipe-card-body {
+      padding: 14px 20px 18px;
+    }
+    .recipe-card-body .r-subtitle {
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+    }
+    .recipe-card-body .r-ingredients {
+      font-size: 13px; line-height: 1.7; margin-bottom: 10px;
+      color: var(--text);
+    }
+    .recipe-card-body .r-steps {
+      font-size: 13px; line-height: 1.7;
+      padding-left: 18px; color: var(--text);
+    }
+    .recipe-card-body .r-steps li {
+      margin-bottom: 4px;
+    }
+    .recipe-card-body .r-steps li::marker { color: var(--accent); font-weight: 600; }
+    .recipe-card-body .r-tip {
+      margin-top: 10px; padding: 8px 12px; border-radius: 8px;
+      background: #fff8e1; font-size: 12px; line-height: 1.6;
+      border-left: 3px solid #ffc107;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center; padding-top: 40px; border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+    }
+    footer strong { color: var(--text); }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      #root { padding: 24px 16px 60px; }
+      header h1 { font-size: 22px; }
+      .summary-grid { grid-template-columns: 1fr 1fr; }
+      table { font-size: 13px; }
+      thead th, tbody td { padding: 10px 12px; }
+      .recipe-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div id="root">
+
+  <!-- Header -->
+  <header>
+    <h1>🍱 <span>알뜰이</span> 식단표</h1>
+    <p class="subtitle"><strong>7/13(월) 오늘 ~ 7/19(일) 다음주</strong> · 4인 가족 · 하루 <strong>두끼</strong> (조식+석식)</p>
+    <div class="badge-row">
+      <span class="badge recipe">👨‍🍳 어남선생 레시피</span>
+    </div>
+  </header>
+
+  <!-- Summary -->
+  <div class="summary-grid">
+    <div class="summary-card">
+      <div class="label">식사 일수</div>
+      <div class="value">7일</div>
+      <div class="sub">7/13(월) ~ 7/19(일)</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">전략</div>
+      <div class="value">🍳 재고+신규장본 소진</div>
+      <div class="sub">베이컨🥓+패티🍔+감자🥔로 버티기</div>
+    </div>
+    <div class="summary-card">
+      <div class="label">조식</div>
+      <div class="value">간단히</div>
+      <div class="sub">토스트/계란/스프 위주</div>
+    </div>
+  </div>
+
+  <!-- Strategy -->
+  <div class="strategy-box">
+    <strong>💰 예산</strong> — 7월 식비 예산 542,620원. 누적 376,410원(69.4%). 잔여 166,210원.<br>
+    <strong>🚨 전략</strong> — 7/11 이마트 장본(92,410원) 재고 활용. 7월말까지 추가지출 최소화.<br>
+    <strong>조식</strong> — 간단히 (토스트/계란/스프 위주)<br>
+    <strong>석식</strong> — 베이컨🥓→패티🍔→감자🥔→새우🦐 순서로 재고 소진<br>
+    <strong>신규 재료</strong> — 캐롤라이나 베이컨🥓, 골드 마요네스🥫, 마이밀크🥛<br>
+    <strong>기본 반찬</strong> — 계란후라이 + 김치 + 양파는 상시<br>
+    <strong>냉면할루</strong> — ❌ 7/2 냉면 5,000원은 할루시네이션으로 제거됨
+  </div>
+
+  <!-- ============================== -->
+  <!-- DAILY MEAL PLAN -->
+  <!-- ============================== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📅</span> 일별 식단표</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>요일</th>
+            <th>조식 🥣</th>
+            <th>석식 🍜</th>
+            <th>사용 재료</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Week 1: 2주차 -->
+          <tr class="week-label"><td colspan="4">🍔 2주차 (7/6~7/12) — 박사님 확정 식단 ✅</td></tr>
+          <tr>
+            <td class="day-label">월<span class="date"> 7/6</span></td>
+            <td>간단 아침</td>
+            <td>🍔 <strong>수제버거+감자튀김</strong></td>
+            <td><div class="chip-list"><span class="chip">패티·상추·양파·감자·버터</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">화<span class="date"> 7/7</span></td>
+            <td>간단 아침</td>
+            <td>🥞 <strong>감자전+계란국🥚</strong></td>
+            <td><div class="chip-list"><span class="chip">감자·양파·파·계란·식용유</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">수<span class="date"> 7/8</span></td>
+            <td>간단 아침</td>
+            <td>🥩 <strong>패티스테이크+감자볶음+밥🍚</strong></td>
+            <td><div class="chip-list"><span class="chip">패티·감자·당근·양파·간장</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">목<span class="date"> 7/9</span></td>
+            <td>간단 아침</td>
+            <td>🦐 <strong>버터 새우 파스타🧈</strong></td>
+            <td><div class="chip-list"><span class="chip">새우·파스타면·버터·마늘·양파</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">금<span class="date"> 7/10</span></td>
+            <td>간단 아침</td>
+            <td>🐔 <strong>애들 치킨(할인 15k)🍗</strong></td>
+            <td><div class="chip-list"><span class="chip">치킨</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">토<span class="date"> 7/11</span></td>
+            <td>간단 아침</td>
+            <td>🛒 <strong>연어회+🥓 이마트 장본</strong></td>
+            <td><div class="chip-list"><span class="chip">외식+장본</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">일<span class="date"> 7/12</span></td>
+            <td>간단 아침</td>
+            <td>🍔 <strong>버거+감자스프🥛</strong></td>
+            <td><div class="chip-list"><span class="chip">패티·감자·우유·버터</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label" style="font-weight:700;">7일 합계</td>
+            <td></td>
+            <td><strong>추가지출 15,000원</strong> (치킨할인)</td>
+            <td><div class="chip-list"><span class="chip success">무지출 작전 성공 🎯</span></div></td>
+          </tr>
+          <!-- Week 2: 3주차 -->
+          <tr class="week-label"><td colspan="4">🥓 3주차 (7/13~7/19) — 이마트 장본 반영 ✅</td></tr>
+          <tr>
+            <td class="day-label">월<span class="date"> 7/13</span></td>
+            <td>간단 아침</td>
+            <td>🥓 <strong>베이컨파스타🧈</strong></td>
+            <td><div class="chip-list"><span class="chip">베이컨·파스타면·마늘·마요</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">화<span class="date"> 7/14</span></td>
+            <td>간단 아침</td>
+            <td>🍔 <strong>버거+감자튀김</strong></td>
+            <td><div class="chip-list"><span class="chip">패티·상추·감자·마요</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">수<span class="date"> 7/15</span></td>
+            <td>간단 아침</td>
+            <td>🥘 <strong>된장찌개+밥🍚</strong></td>
+            <td><div class="chip-list"><span class="chip">된장·양파·파·마늘</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">목<span class="date"> 7/16</span></td>
+            <td>간단 아침</td>
+            <td>🥓 <strong>베이컨계란볶음밥🍳</strong></td>
+            <td><div class="chip-list"><span class="chip">베이컨·계란·밥·마요</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">금<span class="date"> 7/17</span></td>
+            <td>간단 아침</td>
+            <td>🦐 <strong>버터새우+감자볶음</strong></td>
+            <td><div class="chip-list"><span class="chip">새우·감자·버터·양파</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">토<span class="date"> 7/18</span></td>
+            <td>간단 아침</td>
+            <td>🥞 <strong>감자전🍺+계란국🥚</strong></td>
+            <td><div class="chip-list"><span class="chip">감자·계란·파</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label">일<span class="date"> 7/19</span></td>
+            <td>간단 아침</td>
+            <td>🍔 <strong>버거스테이크+밥</strong></td>
+            <td><div class="chip-list"><span class="chip">패티·밥·마요</span></div></td>
+          </tr>
+          <tr>
+            <td class="day-label" style="font-weight:700;">7일 합계</td>
+            <td></td>
+            <td><strong>추가지출 0원</strong></td>
+            <td><div class="chip-list"><span class="chip success">재고+장본으로 버티기 ✅</span></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- 어남선생 RECIPE CARDS -->
+  <!-- ============================== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">👨‍🍳</span> 어남선생 레시피 — 석식 메뉴별</div>
+    <p style="font-size:14px;color:var(--text-secondary);margin:-10px 0 18px;line-height:1.6;">
+      모든 레시피는 KBS 〈신상출시 편스토랑〉 <strong>어남선생 류수영</strong> 님의 레시피를 기반으로 합니다.
+      영상 링크에서 자세한 조리 과정을 확인하세요.
+    </p>
+
+    <div class="recipe-grid">
+
+      <!-- Recipe 1: 평생 김치찌개 -->
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🥘 평생 김치찌개</div>
+          <div class="r-meta">
+            <span>#어남선생 #편스토랑</span>
+            <a href="https://www.youtube.com/watch?v=qRa49obXGQE" target="_blank">🎬 YouTube 영상 보기</a>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (2~3인분)</div>
+          <div class="r-ingredients">
+            김치 600g · 돼지고기(앞다리/목살) 300g · 김치국물 100ml · 양파 1개 · 대파 1대 · 두부 ½모 ·<br>
+            다진마늘 1T · 새우젓 1T · 진간장 2T · 고춧가루 2T · 굵은소금 1t · 식초 1T · 식용유 · 물 1L
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li><strong>고기 볶기</strong> — 달군 냄비에 기름 두르고 돼지고기를 노릇해질 때까지 중불로 볶는다. 연기가 오르면 잠깐 뚜껑 덮기.</li>
+            <li><strong>마늘+새우젓</strong> — 다진마늘 1T → 마늘향 나면 새우젓 1T 넣고 볶는다.</li>
+            <li><strong>간장+고춧가루</strong> — 팬 한쪽에 간장 2T를 끓인 뒤 섞고, 불 끄고 고춧가루 2T 넣어 고추기름을 낸다.</li>
+            <li><strong>끓이기</strong> — 물 1L, 양파·대파·김치·김치국물 100ml, 소금 1t 넣고 뚜껑 덮어 30~40분 중불로 끓인다.</li>
+            <li><strong>마무리</strong> — 식초 1T, 두부 넣고 두부가 데워질 때까지 더 끓이면 완성!</li>
+          </ol>
+          <div class="r-tip">💡 김치를 <strong>볶지 않고</strong> 통으로 넣어 깔끔하고 시원한 국물 맛이 포인트. 고춧가루는 잔열로 볶아 고추기름을 내야 깊은 맛이 납니다.</div>
+        </div>
+      </div>
+
+      <!-- Recipe 2: 원팬 마늘카레 -->
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🍛 원팬 마늘카레</div>
+          <div class="r-meta">
+            <span>#어남선생 #편스토랑</span>
+            <a href="https://tv.kakao.com/channel/3409411/cliplink/430974523" target="_blank">🎬 카카오TV 영상 보기</a>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (2인분)</div>
+          <div class="r-ingredients">
+            구이용 삼겹살(또는 목살) 300g · 양배추 ¼통 · 마늘 한 공기 · 고체 카레 2조각 ·<br>
+            소금 3꼬집 · 간장 1T · 미림 2T · 물 ½컵(100ml) · 청양고추 1개 · 달걀 노른자
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li>삼겹살은 큼직하게 썰고 소금 3꼬집으로 밑간한다. 양배추는 잘게 썬다.</li>
+            <li>카레 2조각에 물 ½컵을 조금씩 부어 개어둔다.</li>
+            <li>중불 팬에 삼겹살을 넣고 표면이 노릇해질 때까지 볶는다. (자주 뒤적이지 말 것!)</li>
+            <li>마늘 한 공기를 넣고 기름에 튀기듯 5분간 익힌다.</li>
+            <li>팬 가장자리에 간장 1T를 넣어 끓인 뒤 섞고, 미림 2T를 넣어 볶는다.</li>
+            <li>약불로 줄이고 양배추를 넣어 잠시 볶은 뒤 <strong>뚜껑 덮어 20분</strong> 익힌다 (물 추가 NO, 양배추 수분만으로).</li>
+            <li>개어둔 카레를 붓고 섞은 뒤 뚜껑 덮어 5분 뜸. 청양고추 올리고 달걀노른자 얹어 마무리.</li>
+          </ol>
+          <div class="r-tip">💡 새우카레 변형 — 새우살을 삼겹살 대신 사용하고 마늘은 그대로. 감칠맛이 더욱 진해집니다.</div>
+        </div>
+      </div>
+
+      <!-- Recipe 3: 돼지불백 (목살 양념구이) -->
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🐖 기사식당 돼지불백</div>
+          <div class="r-meta">
+            <span>#어남선생 #편스토랑</span>
+            <a href="https://tv.kakao.com/channel/3409411/cliplink/438857948" target="_blank">🎬 카카오TV 영상 보기</a>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (3~4인분)</div>
+          <div class="r-ingredients">
+            앞다리살(또는 목살) 600g · 갈아만든배(배음료) 238ml(1캔) · 설탕 3T · 다진마늘 2T · 식초 2T ·<br>
+            진간장 6T · 참기름 1T · 대파 1대 · 식용유
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li><strong>양념 만들기</strong> — 갈아만든배 1캔 + 설탕 3T + 다진마늘 2T + 식초 2T를 섞어 설탕을 녹인다.</li>
+            <li><strong>재우기</strong> — 만든 양념에 고기 + 송송 썬 대파 + 진간장 6T + 참기름 1T를 넣어 주무른 뒤 30분 이상 재운다.</li>
+            <li><strong>굽기</strong> — 강불로 달군 팬에 기름 두르고 고기를 펼쳐 올린 뒤 <strong>5분간 절대 건드리지 않는다</strong> (불맛!).</li>
+            <li><strong>볶기</strong> — 국물이 쫄면 뒤집어 볶고, 기름이 자글거릴 때 남은 양념 국물을 절반 추가해 강불 8분 더 볶는다.</li>
+            <li>대파를 올려 마무리. 쌈무생채나 양파부추무침을 곁들여 먹는다.</li>
+          </ol>
+          <div class="r-tip">💡 30분 이상 숙성할수록 맛이 깊어집니다. 하루 전날 재워두면 더 좋아요! 고기를 펼쳐 누르듯 굽는 게 불맛 내는 핵심.</div>
+        </div>
+      </div>
+
+      <!-- Recipe 4: 액젓 계란볶음밥 -->
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🦐 새우 액젓볶음밥</div>
+          <div class="r-meta">
+            <span>#어남선생 #편스토랑</span>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (2인분)</div>
+          <div class="r-ingredients">
+            냉동 새우 10마리 · 달걀 3개 · 대파 ½대 · 다진마늘 ½T · 즉석밥 2개 ·<br>
+            멸치액젓 2T · 설탕 2T(기호에 따라 1T) · 소금 한꼬집 · 통깨 · 참기름
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li>달군 팬에 기름 두르고 대파·다진마늘을 볶아 향을 낸 뒤 새우를 넣어 익힌다.</li>
+            <li>새우가 붉게 익으면 액젓 2T + 설탕 2T를 넣고 볶는다.</li>
+            <li>재료를 한쪽으로 몰고 빈 공간에 기름을 둘러 계란을 스크램블한다. 소금 한꼬집.</li>
+            <li>밥을 넣고 골고루 볶는다. 마지막에 참기름 한 방울, 통깨 솔솔.</li>
+            <li>그릇에 꾹꾹 눌러 담고 접시에 뒤집어 엎어내면 중국집 스타일 완성!</li>
+          </ol>
+          <div class="r-tip">💡 액젓이 들어가면 간장보다 감칠맛이 훨씬 풍부해집니다. 설탕은 취향에 따라 조절하세요.</div>
+        </div>
+      </div>
+
+      <!-- Recipe 5: 평생 된장찌개 -->
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🥘 평생 된장찌개 (차돌된장찌개)</div>
+          <div class="r-meta">
+            <span>#어남선생 #편스토랑</span>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (2~3인분)</div>
+          <div class="r-ingredients">
+            차돌박이(또는 목살) 200g · 된장 3T · 쌈장 1T · 다진마늘 ½T · 천일염 ⅕T · 식초 ½T ·<br>
+            양파 ½개 · 애호박 · 감자 · 대파 · 두부 · 청양고추 · 물 1L
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li>재료를 한입 크기로 썬다. 냄비에 물 1L를 붓는다.</li>
+            <li>된장 3T + 쌈장 1T + 다진마늘 ½T + 천일염 ⅕T를 넣고 잘 풀어준다.</li>
+            <li>강불로 끓이다 끓어오르면 거품을 걷어내고 식초 ½T를 넣는다.</li>
+            <li>뚜껑 덮고 중불에서 10분 끓인다.</li>
+            <li>두부·청양고추·차돌박이(또는 목살)를 넣고 뚜껑 덮어 3분 더 끓이면 완성!</li>
+          </ol>
+          <div class="r-tip">💡 핵심 비율: <strong>물 1L : 된장 3T : 쌈장 1T</strong>. 쌈장 1T가 감칠맛의 비밀! 식초가 잡내를 잡아줍니다.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- LATE-NIGHT SNACK RECIPE -->
+  <!-- ============================== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">🌙</span> 오늘의 야식 — 대파계란전 🥟</div>
+    <p style="font-size:14px;color:var(--text-secondary);margin:-10px 0 18px;line-height:1.6;">
+      막걸리🍶와 환상 궁합! 저녁 돈까스 후 가볍게 즐기기 좋은 야식.
+    </p>
+    <div class="recipe-grid">
+      <div class="recipe-card">
+        <div class="recipe-card-header">
+          <div class="r-title">🥟 대파계란전 — 5분 야식</div>
+          <div class="r-meta">
+            <span>#야식 #막걸리안주 #5분요리</span>
+          </div>
+        </div>
+        <div class="recipe-card-body">
+          <div class="r-subtitle">📝 재료 (2인분)</div>
+          <div class="r-ingredients">
+            대파 2대 · 달걀 3개 · 부침가루(or 밀가루) ½컵 · 물 ½컵 · 소금 2꼬집 ·<br>
+            식용유 · (선택) 청양고추 1개 · (선택) 버터 1T
+          </div>
+          <div class="r-subtitle">👨‍🍳 만드는 법</div>
+          <ol class="r-steps">
+            <li><strong>반죽</strong> — 부침가루 ½컵 + 물 ½컵 + 달걀 1개 + 소금 2꼬집을 섞어 반죽을 만든다.</li>
+            <li><strong>대파 손질</strong> — 대파는 송송 썰어 반죽에 넣고 섞는다. 청양고추도 썰어 넣으면 칼칼함 UP.</li>
+            <li><strong>굽기</strong> — 달군 팬에 식용유를 넉넉히 두르고 반죽을 얇게 펼친다.</li>
+            <li><strong>뒤집기</strong> — 가장자리가 노릇해지면 뒤집어 앞뒤로 노릇노릇하게 굽는다.</li>
+            <li><strong>마무리</strong> — (선택) 버터 1T를 넣어 고소함 추가. 간장+식초+고춧가루 찍어 먹으면 완벽!</li>
+          </ol>
+          <div class="r-tip">💡 <strong>꿀팁</strong>: 달걀을 하나 더 추가하면 더 촉촉하고 고소해집니다. 부침가루 대신 밀가루+달걀만으로도 가능. 버터 한 조각 넣으면 와규 부침개 소리 납니다!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================== -->
+  <!-- INVENTORY -->
+  <!-- ============================== -->
+  <div class="section">
+    <div class="section-title"><span class="emoji">📦</span> 보유 재고</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>재료</th><th>분량</th><th>활용 메뉴</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>🥓 캐롤라이나 베이컨</td><td>신규 구매</td><td>파스타, 볶음밥</td></tr>
+          <tr><td>🥫 골드 마요네스</td><td>신규 구매</td><td>버거, 샐러드, 볶음</td></tr>
+          <tr><td>🥛 마이밀크</td><td>신규 구매</td><td>스프, 음료</td></tr>
+          <tr><td>🍔 햄버거패티</td><td>~17장(냉동)</td><td>버거, 스테이크, 볶음</td></tr>
+          <tr><td>🦐 냉동새우</td><td>보유</td><td>파스타, 볶음</td></tr>
+          <tr><td>🥔 감자</td><td>소진 중</td><td>전, 튀김, 스프</td></tr>
+          <tr><td>🥚 계란</td><td>소진 중</td><td>국, 볶음, 토스트</td></tr>
+          <tr><td>🧅 양파/파/마늘</td><td>조금</td><td>볶음/찌개/밑간</td></tr>
+          <tr><td>🥬 상추/깻잎</td><td>보유</td><td>버거/쌈</td></tr>
+          <tr><td>🧈 버터</td><td>보유</td><td>감자/파스타</td></tr>
+          <tr><td>🍝 파스타면</td><td>보유</td><td>파스타</td></tr>
+          <tr><td>🍚 쌀</td><td>충분</td><td>밥/볶음밥</td></tr>
+          <tr><td>🫘 된장/고추장/양념</td><td>충분</td><td>찌개/볶음</td></tr>
+          <tr><td>🌿 미역</td><td>건재</td><td>국</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <strong>작성: 알뜰이</strong> · 2026-07-12 갱신<br>
+    레시피 출처: KBS 〈신상출시 편스토랑〉 어남선생 류수영<br>
+    Pretendard Variable · #f2f0eb
+  </footer>
+
+</div>
+</body>
+</html>

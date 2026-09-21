@@ -273,7 +273,7 @@
     </div>
     <div class="summary-card">
       <div class="label">구매 품목</div>
-      <div class="value">17개</div>
+      <div class="value">19개</div>
       <div class="sub">제외 6종 정리</div>
     </div>
     <div class="summary-card">
@@ -352,6 +352,7 @@
         <div class="je-cell">밤</div>
         <div class="je-cell">배</div>
         <div class="je-cell">사과</div>
+        <div class="je-cell">꽃감</div>
       </div></div>
       <div class="je-note">조율이시(대추→밤→배→감) 순서 · 홍동백서(붉은 과일 동쪽, 흰 과일 서쪽)</div>
     </div>
@@ -450,7 +451,7 @@
           <tr><td>육전감 (소고기)</td><td>1만 ~ 2만원</td></tr>
           <tr><td>나물·무·대파</td><td>1만 ~ 2만원</td></tr>
           <tr><td>사과·배</td><td>1만 ~ 2만원</td></tr>
-          <tr><td>밤·대추·황태포·제주 등</td><td>1만 ~ 3만원</td></tr>
+          <tr><td>밤·대추·꽃감·황태포·제주 등</td><td>1만 ~ 3만원</td></tr>
           <tr><td>계란·밀가루·기타</td><td>5천 ~ 1.5만원</td></tr>
           <tr class="total"><td>총 예산 계획</td><td>약 9만 ~ 18만원</td></tr>
         </tbody>
@@ -471,11 +472,11 @@
       </div>
       <div class="tl-item">
         <div class="tl-date">9/22<small>화 · D-3</small></div>
-        <div class="tl-body"><b>1차 장보기</b><span>육류·생선·나물 (갈비 · 조기 · 육전감 · 무) — 고사리·깐도라지는 구매 완료</span></div>
+        <div class="tl-body"><b>1차 장보기</b><span>육류·생선·나물 (갈비 · 조기 · 육전감 · 무 · 당근) — 고사리·깐도라지는 구매 완료</span></div>
       </div>
       <div class="tl-item">
         <div class="tl-date">9/23<small>수 · D-2</small></div>
-        <div class="tl-body"><b>2차 장보기 · 손질</b><span>과일·기타 (사과·배·밤·대추) · 전 재료 손질 · <b>연휴 전 마지막 장보기</b></span></div>
+        <div class="tl-body"><b>2차 장보기 · 손질</b><span>과일·기타 (사과·배·밤·대추·꽃감) · 전 재료 손질 · <b>연휴 전 마지막 장보기</b></span></div>
       </div>
       <div class="tl-item">
         <div class="tl-date">9/24<small>목 · D-1</small></div>
@@ -492,7 +493,7 @@
   <section class="section" id="memo">
     <div class="section-title"><span class="emoji">📝</span>원본 메모 (전체 품목)</div>
     <div class="memo">
-      갈비, 햇밤, 대추, 조기3, <span class="strike">병어</span>, <span class="strike">숙주</span>, 고사리(구매 ✅), <span class="strike">시금치</span>, <span class="strike">콩나물</span>, 무, 도라지(깐도라지 구매 ✅), 산적(당근 맛살 햄 파), <span class="strike">대구전</span>, <span class="strike">표고</span>, 육전감(육전용), <span class="strike">양지</span>, <span class="strike">동그랑땡</span>, <span class="strike">깻잎</span>, 사과, 배, <span class="strike">감</span>, <span class="strike">포도</span>, <span class="strike">귤</span>, <span class="strike">골드키위</span>, 황태포, <span class="strike">탕수</span>, 대파, 계란, 밀가루, <span class="strike">두부</span>, <span class="strike">떡</span>, 제주
+      갈비, 햇밤, 대추, 조기3, <span class="strike">병어</span>, <span class="strike">숙주</span>, 고사리(구매 ✅), <span class="strike">시금치</span>, <span class="strike">콩나물</span>, 무, 도라지(깐도라지 구매 ✅), 산적(당근 맛살 햄 파), <span class="strike">대구전</span>, <span class="strike">표고</span>, 육전감(육전용), <span class="strike">양지</span>, <span class="strike">동그랑땡</span>, <span class="strike">깻잎</span>, 사과, 배, 감(꽃감), <span class="strike">포도</span>, <span class="strike">귤</span>, <span class="strike">골드키위</span>, 황태포, <span class="strike">탕수</span>, 대파, 계란, 밀가루, <span class="strike">두부</span>, <span class="strike">떡</span>, 제주
       <div style="margin-top:10px;font-size:12.5px"><b>취소선</b> = 이번 간소화에서 제외 · <b>구매 ✅</b> = 이미 구매한 품목</div>
     </div>
   </section>
@@ -542,11 +543,13 @@ const GROUPS = [
       { n: '배', q: '1~2개', note: '기본 과일', s: '필수' },
       { n: '햇밤', q: '1봉/소량', note: '제수용', s: '선택' },
       { n: '대추', q: '1봉/소량', note: '제수용', s: '선택' },
+      { n: '꽃감', q: '1봉/소량', note: '제수용 (곶감)', s: '선택' },
       { n: '황태포', q: '1개', note: '필요 시', s: '선택' },
       { n: '제주', q: '필요량', note: '제수용', s: '필수' },
       { n: '계란', q: '1판', note: '지단·육전용', s: '필수' },
       { n: '밀가루', q: '소량', note: '산적·육전용', s: '필수' },
-      { n: '대파', q: '1단', note: '산적·탕 활용', s: '필수' }
+      { n: '대파', q: '1단', note: '산적·탕 활용', s: '필수' },
+      { n: '당근', q: '1~2개', note: '산적·갈비찜용', s: '선택' }
     ],
     skip: []
   }

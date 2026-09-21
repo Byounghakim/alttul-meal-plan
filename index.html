@@ -340,7 +340,7 @@
       <div class="je-line"><span class="je-label">4열</span><div class="je-cells">
         <div class="je-cell">황태포<small>포 · 좌</small></div>
         <div class="je-cell">고사리나물</div>
-        <div class="je-cell">시금치나물</div>
+        <div class="je-cell">취나물</div>
         <div class="je-cell">무나물</div>
       </div></div>
       <div class="je-line"><span class="je-label">5열</span><div class="je-cells">
@@ -427,7 +427,7 @@
         <tbody>
           <tr><td>갈비 + 육전감 + 양지</td><td>갈비만 유지하고 육전은 제외</td></tr>
           <tr><td>조기 + 병어</td><td>조기만 유지</td></tr>
-          <tr><td>숙주 + 고사리 + 시금치 + 콩나물 + 도라지</td><td>고사리·시금치 중심으로 2종</td></tr>
+          <tr><td>숙주 + 고사리 + 시금치 + 콩나물 + 도라지</td><td>고사리·취나물 중심으로 2종</td></tr>
           <tr><td>산적 + 대구전 + 동그랑땡</td><td>산적과 대구전 2종</td></tr>
           <tr><td>사과·배·감·포도·귤·골드키위</td><td>사과·배 중심으로 2종</td></tr>
           <tr><td>햇밤·대추·황태포</td><td>제수상에 필요한 경우 유지</td></tr>
@@ -471,7 +471,7 @@
       </div>
       <div class="tl-item">
         <div class="tl-date">9/22<small>화 · D-3</small></div>
-        <div class="tl-body"><b>1차 장보기</b><span>육류·생선·나물 (갈비 · 조기 · 고사리 · 시금치 · 무)</span></div>
+        <div class="tl-body"><b>1차 장보기</b><span>육류·생선·나물 (갈비 · 조기 · 고사리 · 취나물 · 무)</span></div>
       </div>
       <div class="tl-item">
         <div class="tl-date">9/23<small>수 · D-2</small></div>
@@ -492,8 +492,8 @@
   <section class="section" id="memo">
     <div class="section-title"><span class="emoji">📝</span>원본 메모 (전체 품목)</div>
     <div class="memo">
-      갈비, 햇밤, 대추, 조기3, <span class="strike">병어</span>, <span class="strike">숙주</span>, 고사리, 시금치, <span class="strike">콩나물</span>, 무, <span class="strike">도라지</span>(하루 전 소금물에 담가놓기), 산적(당근 맛살 햄 파), 대구전, <span class="strike">표고</span>, <span class="strike">육전감</span>, <span class="strike">양지</span>, <span class="strike">동그랑땡</span>, <span class="strike">깻잎</span>, 사과, 배, <span class="strike">감</span>, <span class="strike">포도</span>, <span class="strike">귤</span>, <span class="strike">골드키위</span>, 황태포, <span class="strike">탕수</span>, 대파, 계란, 밀가루, <span class="strike">두부</span>, <span class="strike">떡</span>, 제주
-      <div style="margin-top:10px;font-size:12.5px"><b>취소선</b> = 이번 간소화에서 제외한 품목</div>
+      갈비, 햇밤, 대추, 조기3, <span class="strike">병어</span>, <span class="strike">숙주</span>, 고사리, <span class="strike">시금치</span>, <b>취나물</b>(대체), <span class="strike">콩나물</span>, 무, <span class="strike">도라지</span>(하루 전 소금물에 담가놓기), 산적(당근 맛살 햄 파), 대구전, <span class="strike">표고</span>, <span class="strike">육전감</span>, <span class="strike">양지</span>, <span class="strike">동그랑땡</span>, <span class="strike">깻잎</span>, 사과, 배, <span class="strike">감</span>, <span class="strike">포도</span>, <span class="strike">귤</span>, <span class="strike">골드키위</span>, 황태포, <span class="strike">탕수</span>, 대파, 계란, 밀가루, <span class="strike">두부</span>, <span class="strike">떡</span>, 제주
+      <div style="margin-top:10px;font-size:12.5px"><b>취소선</b> = 이번 간소화에서 제외 · <b>굵게</b> = 대체 추가 (시금치 제철 12~2월 → 취나물)</div>
     </div>
   </section>
 
@@ -529,11 +529,11 @@ const GROUPS = [
     name: '③ 나물·탕', emoji: '🥬',
     items: [
       { n: '고사리', q: '1팩 (150~200g)', note: '나물 1종', s: '필수' },
-      { n: '시금치', q: '1단', note: '나물 1종 추가', s: '선택' },
+      { n: '취나물', q: '1팩 (건 50~100g)', note: '시금치 대체 · 나물 1종', s: '선택' },
       { n: '무', q: '1개', note: '탕 또는 나물 활용', s: '필수' },
       { n: '탕 재료', q: '필요량', note: '조리법에 따라 확인', s: '선택' }
     ],
-    skip: ['도라지 (나물 수 줄이기)', '숙주·콩나물 (고사리·시금치로 대체)']
+    skip: ['도라지 (나물 수 줄이기)', '숙주·콩나물 (고사리·취나물로 대체)', '시금치 (제철 12~2월 · 9월 비제철 → 취나물로 대체)']
   },
   {
     name: '④ 과일·기타', emoji: '🍎',
@@ -611,14 +611,16 @@ const RECIPES = [
     tip: '건고사리는 <b>불리는 시간이 길수록</b> 부드럽다. 제사용은 간을 심심하게.'
   },
   {
-    emoji: '🌿', title: '시금치나물', meta: ['나물 1종', '4인', '약 10분'],
-    ing: '시금치 1단, 소금, 참기름 1큰술, 마늘 1/2큰술, 깨소금',
+    emoji: '🌿', title: '취나물', meta: ['나물 1종', '4인', '약 25분'],
+    ing: '건취나물 50~100g, 간장 1큰술, 참기름 1큰술, 마늘 1/2큰술, 대파, 깨소금',
     steps: [
-      '끓는 소금물에 시금치를 30초 데친다',
-      '찬물에 헹궈 물기를 짠다',
-      '참기름·소금·마늘·깨소금에 무친다'
+      '건취나물을 미지근한 물에 30분~1시간 불린다',
+      '끓는 물에 5분 삶아 찬물에 헹구고 물기를 짠다',
+      '참기름 두른 팬에 볶는다',
+      '간장·마늘을 넣고 5분 더 볶는다',
+      '대파·깨소금으로 마무리한다'
     ],
-    tip: '데치는 시간이 길면 물러진다. <b>30초 이내</b>.'
+    tip: '취나물은 향이 좋아 제사 나물로 제격. <b>시금치(제철 12~2월) 대체</b> · 건취나물은 연중 구매 가능하고 저렴하다.'
   },
   {
     emoji: '🥕', title: '무나물', meta: ['나물 1종', '4인', '약 15분'],
@@ -659,7 +661,7 @@ const SAVES = [
   { emoji: '🎟️', title: '성남사랑상품권 10% 할인', body: '구매 예정인 상품권으로 장보기 결제하면 체감 <b>10% 절감</b>. 구매 금액 확정 후 이번 장보기에 우선 사용.', hot: true },
   { emoji: '🥩', title: '갈비는 국내산 vs 미국산', body: '국내산 600g 세트 약 <b>5만원대</b>, 미국산 갈비살 1kg 약 <b>4만원대</b>. 찜용/구이용 부위와 냉동·생물 가격을 비교해 결정.' },
   { emoji: '🐟', title: '조기는 3마리만', body: '국산·수입, 크기별 가격 차이가 큼. <b>냉동 조기</b>가 저렴. 병어는 제외해 생선 종류를 1종으로.' },
-  { emoji: '🥬', title: '나물은 건나물 · 전통시장', body: '건고사리가 생나물보다 저렴하고 보관이 쉬움. 마트보다 <b>전통시장</b>이 대체로 저렴.' },
+  { emoji: '🥬', title: '나물은 건나물 · 전통시장', body: '건고사리·건취나물이 생나물보다 저렴하고 보관이 쉬움. 마트보다 <b>전통시장</b>이 대체로 저렴.' },
   { emoji: '🍎', title: '과일은 실속형 2종', body: '제수용은 <b>못난이·실속형</b>으로 사과·배 2종만 소량. 감·포도·귤·골드키위는 제외.' },
   { emoji: '🥚', title: '집에 있는 재료 먼저 확인', body: '계란·밀가루는 보유 중 → <b>구매 제외</b>. 대파·무도 있으면 체크리스트에서 빼서 중복 구매 방지.' },
   { emoji: '🛒', title: '리스트 밖 구매 금지', body: '6월 교훈 — 대형마트 충동구매가 초과 주범. <b>리스트에 있는 것만</b> 구매.' },

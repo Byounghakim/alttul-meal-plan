@@ -208,6 +208,16 @@
   .notice { background: var(--amber-bg); border-left: 4px solid #f0a500; border-radius: 10px; padding: 14px 18px; font-size: 13.5px; line-height: 1.7; margin-top: 14px; }
   .notice b { color: var(--amber); }
 
+  /* Sync */
+  .sync-status { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; font-weight: 500; padding: 4px 11px; border-radius: 999px; background: var(--tag-bg); color: var(--text-secondary); }
+  .sync-status.ok { background: #e8f5ec; color: #1e7a43; }
+  .sync-status.off { background: var(--accent-light); color: var(--accent); }
+  .share-panel { margin-top: 14px; padding: 16px 18px; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 12px; }
+  .share-panel .share-title { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6; }
+  .share-panel input { width: 100%; padding: 9px 11px; font-size: 12.5px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-secondary); }
+  .share-panel .share-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .share-panel img { display: block; margin: 14px auto 0; border-radius: 10px; background: #fff; padding: 8px; border: 1px solid var(--border); }
+
   /* Footer */
   footer { text-align: center; padding-top: 40px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); line-height: 1.9; }
   footer a { color: var(--accent); text-decoration: none; font-weight: 500; }
@@ -294,13 +304,23 @@
     <div class="check-card">
       <div class="check-top">
         <div class="check-count"><b id="cnt">0</b> / <span id="tot">0</span>개 구매 완료</div>
-        <div class="check-count" style="font-size:12.5px">체크 상태는 이 기기에 자동 저장됩니다</div>
+        <div id="syncStatus" class="sync-status">🔄 연결 중…</div>
       </div>
       <div class="progress"><i id="bar"></i></div>
       <div id="groups"></div>
       <div class="check-actions">
         <button class="btn primary" id="copy">📋 장보기 목록 복사</button>
+        <button class="btn" id="share">📱 다른 기기로 보내기</button>
         <button class="btn" id="reset">초기화</button>
+      </div>
+      <div class="share-panel" id="sharePanel" hidden>
+        <div class="share-title">아래 링크를 폰에서 열면 <b>지금 체크 상태 그대로</b> 보입니다. PC↔폰 자동 동기화가 안 될 때 쓰는 백업 방법입니다.</div>
+        <input id="shareLink" readonly>
+        <div class="share-row">
+          <button class="btn primary" id="shareCopy">링크 복사</button>
+          <button class="btn" id="shareClose">닫기</button>
+        </div>
+        <img id="shareQR" width="180" height="180" alt="QR 코드">
       </div>
     </div>
     <div class="notice">
@@ -671,22 +691,35 @@ const SAVES = [
   { emoji: '📅', title: '연휴 전에 장보기', body: '추석 임박하면 가격이 오름. <b>9/23(수)까지</b> 장보기 완료.' }
 ];
 
-/* ---------- Checklist ---------- */
+/* ---------- Checklist + 기기 간 동기화 ---------- */
 const ALL = GROUPS.flatMap(g => g.items);
-let checked = new Set();
-try { checked = new Set(JSON.parse(localStorage.getItem(KEY) || '[]')); } catch (e) { checked = new Set(); }
+const SYNC_BASE = 'https://macbook-pro-54.tail1e8f41.ts.net';
+const SYNC_API = SYNC_BASE + '/api/state';
+const LIST_ID = 'chuseok-2026';
+const SEEDED = ['고사리', '깐도라지'];   // 이미 구매한 품목
 
-// 이미 구매한 품목 — 최초 1회만 자동 체크
-const SEED_FLAG = KEY + ':seed-bought';
-if (!localStorage.getItem(SEED_FLAG)) {
-  ['고사리', '깐도라지'].forEach(n => checked.add(n));
-  try { localStorage.setItem(SEED_FLAG, '1'); } catch (e) {}
+// state = { 품목명: { c: 체크여부, t: epoch_ms } }  — 품목별 최신 수정이 승리
+function loadLocal() {
+  try {
+    const v = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (Array.isArray(v)) { const o = {}; v.forEach(n => { o[n] = { c: true, t: 1 }; }); return o; }
+    if (v && typeof v === 'object') return v;
+  } catch (e) {}
+  return {};
 }
+let state = loadLocal();
+SEEDED.forEach(n => { if (!state[n]) state[n] = { c: true, t: 1 }; });
 
 const $groups = document.getElementById('groups');
 const $cnt = document.getElementById('cnt');
 const $tot = document.getElementById('tot');
 const $bar = document.getElementById('bar');
+const $status = document.getElementById('syncStatus');
+
+const isChecked = n => !!(state[n] && state[n].c);
+const countChecked = () => ALL.filter(it => isChecked(it.n)).length;
+
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
 function renderChecklist() {
   $groups.innerHTML = GROUPS.map(g => `
@@ -694,7 +727,7 @@ function renderChecklist() {
       <div class="group-title">${g.emoji} ${g.name} <span class="n">${g.items.length}종</span></div>
       ${g.items.map(it => `
         <label class="item">
-          <input type="checkbox" data-name="${it.n}" ${checked.has(it.n) ? 'checked' : ''}>
+          <input type="checkbox" data-name="${it.n}">
           <span class="box"></span>
           <span class="txt">
             <span class="name-row">
@@ -711,33 +744,164 @@ function renderChecklist() {
   `).join('');
 
   $tot.textContent = ALL.length;
-  update();
+  applyChecks();
 }
 
-function update() {
-  $cnt.textContent = checked.size;
-  $bar.style.width = (ALL.length ? (checked.size / ALL.length * 100) : 0) + '%';
-  try { localStorage.setItem(KEY, JSON.stringify([...checked])); } catch (e) {}
+function applyChecks() {
+  document.querySelectorAll('#groups input[type=checkbox]').forEach(cb => {
+    cb.checked = isChecked(cb.dataset.name);
+  });
+  const n = countChecked();
+  $cnt.textContent = n;
+  $bar.style.width = (ALL.length ? (n / ALL.length * 100) : 0) + '%';
+}
+
+function setStatus(kind, text) {
+  if (!$status) return;
+  $status.textContent = text;
+  $status.className = 'sync-status ' + kind;
+}
+
+/* --- 병합: 품목별 t(수정시각)가 큰 쪽이 승리 --- */
+function mergeInto(target, incoming) {
+  let changed = false;
+  if (!incoming || typeof incoming !== 'object') return false;
+  for (const k of Object.keys(incoming)) {
+    const v = incoming[k];
+    if (!v || typeof v !== 'object') continue;
+    const t = Number(v.t) || 0;
+    const cur = target[k];
+    if (!cur || (Number(cur.t) || 0) < t) { target[k] = { c: !!v.c, t: t }; changed = true; }
+  }
+  return changed;
+}
+
+/* --- 서버 동기화 (Tailscale 사설망) --- */
+let syncing = false, pending = false, syncTimer = null;
+
+function scheduleSync() {
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushState, 400);
+}
+
+async function pushState() {
+  if (syncing) { pending = true; return; }
+  syncing = true;
+  try {
+    const res = await fetch(SYNC_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ list: LIST_ID, items: state })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (mergeInto(state, data.items)) { persist(); applyChecks(); }
+    setStatus('ok', '🟢 폰·PC 동기화됨');
+  } catch (e) {
+    setStatus('off', '⚪ 오프라인 · 이 기기에만 저장');
+  } finally {
+    syncing = false;
+    if (pending) { pending = false; pushState(); }
+  }
+}
+
+async function pullState(silent) {
+  try {
+    const res = await fetch(SYNC_API + '?list=' + encodeURIComponent(LIST_ID) + '&_=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (mergeInto(state, data.items)) { persist(); applyChecks(); }
+    setStatus('ok', '🟢 폰·PC 동기화됨');
+  } catch (e) {
+    if (!silent) setStatus('off', '⚪ 오프라인 · 이 기기에만 저장');
+  }
 }
 
 $groups.addEventListener('change', e => {
   const cb = e.target.closest('input[type=checkbox]');
   if (!cb) return;
-  if (cb.checked) checked.add(cb.dataset.name); else checked.delete(cb.dataset.name);
-  update();
+  state[cb.dataset.name] = { c: cb.checked, t: Date.now() };
+  persist(); applyChecks(); scheduleSync();
 });
 
 document.getElementById('reset').addEventListener('click', () => {
-  if (!confirm('체크 상태를 모두 초기화할까요?')) return;
-  checked.clear();
-  document.querySelectorAll('#groups input[type=checkbox]').forEach(cb => cb.checked = false);
-  update();
+  if (!confirm('체크 상태를 모두 초기화할까요? (다른 기기에도 반영됩니다)')) return;
+  const t = Date.now();
+  ALL.forEach(it => { state[it.n] = { c: false, t: t }; });
+  persist(); applyChecks(); scheduleSync();
+});
+
+/* --- 링크·QR 공유 (자동 동기화가 안 될 때 백업) --- */
+function encodeBits() {
+  const bits = ALL.map(it => isChecked(it.n) ? 1 : 0);
+  let bin = '';
+  for (let i = 0; i < bits.length; i += 8) {
+    let b = 0;
+    for (let j = 0; j < 8 && i + j < bits.length; j++) if (bits[i + j]) b |= 1 << j;
+    bin += String.fromCharCode(b);
+  }
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function decodeBits(s) {
+  try {
+    const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
+    const out = [];
+    for (let i = 0; i < bin.length; i++) {
+      const b = bin.charCodeAt(i);
+      for (let j = 0; j < 8; j++) out.push((b >> j) & 1);
+    }
+    return out;
+  } catch (e) { return null; }
+}
+function buildShareLink() {
+  return location.origin + location.pathname + '#s=' + encodeBits() + '&t=' + Date.now();
+}
+
+// 링크로 열었으면 그 상태를 병합 적용
+(function applyHash() {
+  const m = /(?:^|[#&])s=([A-Za-z0-9_-]+)/.exec(location.hash || '');
+  if (!m) return;
+  const bits = decodeBits(m[1]);
+  if (!bits) return;
+  const tm = /(?:^|[#&])t=(\d+)/.exec(location.hash);
+  const ts = tm ? Number(tm[1]) : Date.now();
+  mergeInto(state, Object.fromEntries(ALL.map((it, i) => [it.n, { c: !!bits[i], t: ts }])));
+  persist();
+  history.replaceState(null, '', location.pathname + location.search);
+})();
+
+const $sharePanel = document.getElementById('sharePanel');
+const $shareQR = document.getElementById('shareQR');
+$shareQR.addEventListener('error', () => { $shareQR.style.display = 'none'; });
+$shareQR.addEventListener('load', () => { $shareQR.style.display = 'block'; });
+document.getElementById('share').addEventListener('click', () => {
+  const link = buildShareLink();
+  document.getElementById('shareLink').value = link;
+  $shareQR.style.display = 'block';
+  $shareQR.src =
+    'https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=0&data=' + encodeURIComponent(link);
+  $sharePanel.hidden = false;
+  $sharePanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+document.getElementById('shareClose').addEventListener('click', () => { $sharePanel.hidden = true; });
+document.getElementById('shareCopy').addEventListener('click', async () => {
+  const b = document.getElementById('shareCopy');
+  const old = b.textContent;
+  try {
+    await navigator.clipboard.writeText(document.getElementById('shareLink').value);
+    b.textContent = '✅ 복사 완료!';
+  } catch (e) {
+    const inp = document.getElementById('shareLink');
+    inp.select(); document.execCommand('copy');
+    b.textContent = '✅ 복사 완료!';
+  }
+  setTimeout(() => { b.textContent = old; }, 1500);
 });
 
 document.getElementById('copy').addEventListener('click', async () => {
   const text = GROUPS.map(g =>
     g.name + '\n' + g.items.map(i =>
-      (checked.has(i.n) ? '☑ ' : '☐ ') + i.n + ' ' + i.q + ' — ' + i.note
+      (isChecked(i.n) ? '☑ ' : '☐ ') + i.n + ' ' + i.q + ' — ' + i.note
     ).join('\n')
   ).join('\n\n');
 
@@ -798,6 +962,15 @@ window.addEventListener('resize', spy);
 
 renderChecklist();
 spy();
+
+/* ---------- 동기화 시작 ---------- */
+(async () => {
+  await pullState(false);   // 서버 상태 먼저 병합
+  await pushState();        // 로컬(시드 포함) 상태 반영
+})();
+setInterval(() => { if (!document.hidden) pullState(true); }, 5000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) pullState(true); });
+window.addEventListener('focus', () => pullState(true));
 </script>
 </body>
 </html>

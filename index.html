@@ -129,6 +129,18 @@
   .tag.req { background: var(--accent-light); color: var(--accent); }
   .tag.opt { background: var(--tag-bg); color: var(--text-secondary); }
 
+  /* 품목별 메모 */
+  .memo-row { margin: -4px 0 10px 40px; }
+  .memo-input {
+    width: 100%; font-family: inherit; font-size: 12.5px; line-height: 1.55;
+    padding: 7px 11px; border: 1px dashed #ddd8ce; border-radius: 9px;
+    background: #fdfcf9; color: var(--text); resize: none; overflow: hidden;
+    min-height: 33px; transition: border-color .15s, background .15s;
+  }
+  .memo-input::placeholder { color: #c2bcb1; }
+  .memo-input:focus { outline: none; border-style: solid; border-color: var(--accent); background: #fff; }
+  .memo-input.has-value { border-style: solid; border-color: #f0d99b; background: #fffdf5; }
+
   .skip-list { margin: 6px 0 0 30px; font-size: 12.5px; color: #9b968c; line-height: 1.9; }
   .skip-list s { text-decoration-color: #cfcac0; }
 
@@ -724,27 +736,40 @@ const $bar = document.getElementById('bar');
 const $status = document.getElementById('syncStatus');
 
 const isChecked = n => !!(state[n] && state[n].c);
+const memoOf = n => (state[n] && typeof state[n].m === 'string') ? state[n].m : '';
 const countChecked = () => ALL.filter(it => isChecked(it.n)).length;
+const lastEdit = new Map();
 
 function persist() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 220) + 'px';
+}
 
 function renderChecklist() {
   $groups.innerHTML = GROUPS.map(g => `
     <div class="group">
       <div class="group-title">${g.emoji} ${g.name} <span class="n">${g.items.length}종</span></div>
       ${g.items.map(it => `
-        <label class="item">
-          <input type="checkbox" data-name="${it.n}">
-          <span class="box"></span>
-          <span class="txt">
-            <span class="name-row">
-              <span class="name">${it.n}</span>
-              <span class="qty">· ${it.q}</span>
-              <span class="tag ${it.s === '필수' ? 'req' : 'opt'}">${it.s}</span>
+        <div class="item-wrap">
+          <label class="item">
+            <input type="checkbox" data-name="${it.n}">
+            <span class="box"></span>
+            <span class="txt">
+              <span class="name-row">
+                <span class="name">${it.n}</span>
+                <span class="qty">· ${it.q}</span>
+                <span class="tag ${it.s === '필수' ? 'req' : 'opt'}">${it.s}</span>
+              </span>
+              <span class="note">${it.note}</span>
             </span>
-            <span class="note">${it.note}</span>
-          </span>
-        </label>
+          </label>
+          <div class="memo-row">
+            <textarea class="memo-input" data-name="${it.n}" rows="1"
+              placeholder="메모"></textarea>
+          </div>
+        </div>
       `).join('')}
       ${g.skip.length ? `<div class="skip-list">${g.skip.map(s => '⊘ <s>' + s + '</s>').join('<br>')}</div>` : ''}
     </div>
@@ -758,6 +783,17 @@ function applyChecks() {
   document.querySelectorAll('#groups input[type=checkbox]').forEach(cb => {
     cb.checked = isChecked(cb.dataset.name);
   });
+  document.querySelectorAll('#groups .memo-input').forEach(el => {
+    // 지금 이 창에 입력 중이면 원격 값으로 덮어쓰지 않는다
+    const editing = el === document.activeElement && (Date.now() - (lastEdit.get(el.dataset.name) || 0)) < 3000;
+    if (editing) return;
+    const m = memoOf(el.dataset.name);
+    if (el.value !== m) {
+      el.value = m;
+      el.classList.toggle('has-value', !!m.trim());
+      autoGrow(el);
+    }
+  });
   const n = countChecked();
   $cnt.textContent = n;
   $bar.style.width = (ALL.length ? (n / ALL.length * 100) : 0) + '%';
@@ -769,16 +805,26 @@ function setStatus(kind, text) {
   $status.className = 'sync-status ' + kind;
 }
 
-/* --- 병합: 품목별 t(수정시각)가 큰 쪽이 승리 --- */
+/* --- 병합: 체크(c/t)·메모(m/mt) 각각 최신 수정이 승리 --- */
 function mergeInto(target, incoming) {
   let changed = false;
   if (!incoming || typeof incoming !== 'object') return false;
   for (const k of Object.keys(incoming)) {
     const v = incoming[k];
     if (!v || typeof v !== 'object') continue;
-    const t = Number(v.t) || 0;
     const cur = target[k];
-    if (!cur || (Number(cur.t) || 0) < t) { target[k] = { c: !!v.c, t: t }; changed = true; }
+    const next = {
+      c: !!(cur && cur.c),
+      t: Number(cur && cur.t) || 0,
+      m: (cur && typeof cur.m === 'string') ? cur.m : '',
+      mt: Number(cur && cur.mt) || 0
+    };
+    let dirty = !cur;
+    const t = Number(v.t) || 0;
+    if (t > next.t) { next.c = !!v.c; next.t = t; dirty = true; }
+    const mt = Number(v.mt) || 0;
+    if (mt > next.mt) { next.m = typeof v.m === 'string' ? v.m : ''; next.mt = mt; dirty = true; }
+    if (dirty) { target[k] = next; changed = true; }
   }
   return changed;
 }
@@ -827,14 +873,28 @@ async function pullState(silent) {
 $groups.addEventListener('change', e => {
   const cb = e.target.closest('input[type=checkbox]');
   if (!cb) return;
-  state[cb.dataset.name] = { c: cb.checked, t: Date.now() };
+  const cur = state[cb.dataset.name] || { m: '', mt: 0 };
+  state[cb.dataset.name] = { ...cur, c: cb.checked, t: Date.now() };
   persist(); applyChecks(); scheduleSync();
 });
 
+// 메모 입력 (입력이 멈추면 자동 저장·전송)
+$groups.addEventListener('input', e => {
+  const el = e.target.closest('.memo-input');
+  if (!el) return;
+  autoGrow(el);
+  const n = el.dataset.name;
+  const cur = state[n] || { c: false, t: 0, m: '', mt: 0 };
+  state[n] = { ...cur, m: el.value, mt: Date.now() };
+  el.classList.toggle('has-value', !!el.value.trim());
+  lastEdit.set(n, Date.now());
+  persist(); scheduleSync();
+});
+
 document.getElementById('reset').addEventListener('click', () => {
-  if (!confirm('체크 상태를 모두 초기화할까요? (다른 기기에도 반영됩니다)')) return;
+  if (!confirm('체크 상태를 모두 초기화할까요? (메모는 유지되고, 다른 기기에도 반영됩니다)')) return;
   const t = Date.now();
-  ALL.forEach(it => { state[it.n] = { c: false, t: t }; });
+  ALL.forEach(it => { const cur = state[it.n] || { m: '', mt: 0 }; state[it.n] = { ...cur, c: false, t: t }; });
   persist(); applyChecks(); scheduleSync();
 });
 
@@ -909,9 +969,11 @@ document.getElementById('shareCopy').addEventListener('click', async () => {
 
 document.getElementById('copy').addEventListener('click', async () => {
   const text = GROUPS.map(g =>
-    g.name + '\n' + g.items.map(i =>
-      (isChecked(i.n) ? '☑ ' : '☐ ') + i.n + ' ' + i.q + ' — ' + i.note
-    ).join('\n')
+    g.name + '\n' + g.items.map(i => {
+      const memo = memoOf(i.n);
+      return (isChecked(i.n) ? '☑ ' : '☐ ') + i.n + ' ' + i.q + ' — ' + i.note
+        + (memo.trim() ? '  📝 ' + memo.trim() : '');
+    }).join('\n')
   ).join('\n\n');
 
   const done = () => {

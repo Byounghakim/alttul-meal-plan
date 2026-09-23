@@ -217,6 +217,8 @@
   .share-panel input { width: 100%; padding: 9px 11px; font-size: 12.5px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text-secondary); }
   .share-panel .share-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
   .share-panel img { display: block; margin: 14px auto 0; border-radius: 10px; background: #fff; padding: 8px; border: 1px solid var(--border); }
+  .sync-notice { font-size: 12.5px; line-height: 1.7; background: #fff8e6; border: 1px solid #f0d99b; border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; color: var(--text-secondary); }
+  .sync-notice a { color: var(--accent); font-weight: 600; word-break: break-all; }
 
   /* Footer */
   footer { text-align: center; padding-top: 40px; border-top: 1px solid var(--border); font-size: 13px; color: var(--text-secondary); line-height: 1.9; }
@@ -307,6 +309,10 @@
         <div id="syncStatus" class="sync-status">🔄 연결 중…</div>
       </div>
       <div class="progress"><i id="bar"></i></div>
+      <div class="sync-notice" id="syncNotice" hidden>
+        📱 <b>PC·폰 자동 동기화</b>는 <a href="https://macbook-pro-54.tail1e8f41.ts.net/">macbook-pro-54.tail1e8f41.ts.net</a> 주소에서 됩니다.
+        지금 주소에서는 브라우저 보안 정책으로 자동 동기화가 막히니, 아래 <b>다른 기기로 보내기</b>를 이용하세요.
+      </div>
       <div id="groups"></div>
       <div class="check-actions">
         <button class="btn primary" id="copy">📋 장보기 목록 복사</button>
@@ -694,7 +700,8 @@ const SAVES = [
 /* ---------- Checklist + 기기 간 동기화 ---------- */
 const ALL = GROUPS.flatMap(g => g.items);
 const SYNC_BASE = 'https://macbook-pro-54.tail1e8f41.ts.net';
-const SYNC_API = SYNC_BASE + '/api/state';
+// 같은 주소로 열면 상대경로(동일 출처) — 브라우저 로컬망 차단(LNA) 회피
+const SYNC_API = (location.origin === SYNC_BASE) ? '/api/state' : SYNC_BASE + '/api/state';
 const LIST_ID = 'chuseok-2026';
 const SEEDED = ['고사리', '깐도라지'];   // 이미 구매한 품목
 
@@ -798,7 +805,7 @@ async function pushState() {
     if (mergeInto(state, data.items)) { persist(); applyChecks(); }
     setStatus('ok', '🟢 폰·PC 동기화됨');
   } catch (e) {
-    setStatus('off', '⚪ 오프라인 · 이 기기에만 저장');
+    setStatus('off', (ON_SYNC_ORIGIN ? '⚪ 오프라인 · 이 기기에만 저장' : '⚪ 자동 동기화 차단 · 링크로 공유'));
   } finally {
     syncing = false;
     if (pending) { pending = false; pushState(); }
@@ -813,7 +820,7 @@ async function pullState(silent) {
     if (mergeInto(state, data.items)) { persist(); applyChecks(); }
     setStatus('ok', '🟢 폰·PC 동기화됨');
   } catch (e) {
-    if (!silent) setStatus('off', '⚪ 오프라인 · 이 기기에만 저장');
+    if (!silent) setStatus('off', (ON_SYNC_ORIGIN ? '⚪ 오프라인 · 이 기기에만 저장' : '⚪ 자동 동기화 차단 · 링크로 공유'));
   }
 }
 
@@ -872,6 +879,8 @@ function buildShareLink() {
 
 const $sharePanel = document.getElementById('sharePanel');
 const $shareQR = document.getElementById('shareQR');
+const ON_SYNC_ORIGIN = (location.origin === SYNC_BASE);
+if (!ON_SYNC_ORIGIN) document.getElementById('syncNotice').hidden = false;
 $shareQR.addEventListener('error', () => { $shareQR.style.display = 'none'; });
 $shareQR.addEventListener('load', () => { $shareQR.style.display = 'block'; });
 document.getElementById('share').addEventListener('click', () => {

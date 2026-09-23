@@ -720,7 +720,29 @@ const SYNC_BASE = 'https://macbook-pro-54.tail1e8f41.ts.net';
 // 같은 주소로 열면 상대경로(동일 출처) — 브라우저 로컬망 차단(LNA) 회피
 const SYNC_API = (location.origin === SYNC_BASE) ? '/api/state' : SYNC_BASE + '/api/state';
 const LIST_ID = 'chuseok-2026';
-const SEEDED = ['고사리', '깐도라지'];   // 이미 구매한 품목
+// 페이지에 고정된 장보기 결과 — 맥이 꺼져 있어도 이 상태로 보인다
+// (서버·이 기기에 더 최신 기록이 있으면 그쪽이 우선)
+const SEED_STATE = {
+  "갈비": { c: true, m: "1팩, 이마트" },
+  "조기": { c: true, m: "이마트에서, 냉장 조기 3마리 묶음 구매   17940원" },
+  "산적 재료": { c: true, m: "맛살, 당근, 대파만 할 생각, 햄은 제외변경 다시구매쪽으로 노브 김밥용 행 1780 원 이것으로해보자 좀 얇긴해도 컷팅 잘하면될듯" },
+  "육전감": { c: true, m: "육전용 소고기 구매는 정육점에서 구매 완료 4만원어치와 김치찌게용 앞다리살 구매 총 5만원" },
+  "고사리": { c: true, m: "내장 구매 완료, 이마트 " },
+  "깐도라지": { c: true, m: "냉장 구매 완료, 이마트 " },
+  "무": { c: true, m: "작은 무 두개 있음 시장에서 좋은 무 있으면 추가 할 계획 있음" },
+  "탕 재료": { c: true, m: "한우, 무, 표고 확보 " },
+  "사과": { c: true, m: "시장 구매 계획, 없으면 마트에서 상자로 구매할 생각 대략(25000원)" },
+  "배": { c: true, m: "김약사님 선물" },
+  "햇밤": { c: true, m: "시장구매 까야함" },
+  "대추": { c: true, m: "재고 사용" },
+  "꽃감": { c: false, m: "노브랜드 상주 품절 ㅠ" },
+  "황태포": { c: true, m: "재고 사용" },
+  "제주": { c: true, m: "구매 완료 " },
+  "계란": { c: true, m: "재고 사용" },
+  "밀가루": { c: true, m: "부칭가루 부족 구매 4980원" },
+  "대파": { c: true, m: "시장 1차 " },
+  "당근": { c: true, m: "시장 구매 완료" }
+};
 
 // state = { 품목명: { c: 체크여부, t: epoch_ms } }  — 품목별 최신 수정이 승리
 function loadLocal() {
@@ -732,7 +754,9 @@ function loadLocal() {
   return {};
 }
 let state = loadLocal();
-SEEDED.forEach(n => { if (!state[n]) state[n] = { c: true, t: 1 }; });
+Object.keys(SEED_STATE).forEach(n => {
+  if (!state[n]) state[n] = { c: SEED_STATE[n].c, t: 1, m: SEED_STATE[n].m, mt: 1 };
+});
 
 const $groups = document.getElementById('groups');
 const $cnt = document.getElementById('cnt');

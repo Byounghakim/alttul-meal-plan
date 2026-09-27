@@ -272,10 +272,10 @@ function render(){
 }
 function setCheckin(child, value) {
   const isHome = value === '집에서 먹음';
-  const timeEl = document.querySelector(`input[name="cin_${child}_time"]`);
+  const timeWrapper = document.getElementById(child+'TimeWrapper');
   const photoUpload = document.getElementById(child+'PhotoUpload');
-  if(timeEl) timeEl.style.display = value === '집에서 먹음' ? 'inline-block' : 'none';
-  if(photoUpload) photoUpload.style.display = value === '집에서 먹음' ? 'flex' : 'none';
+  if(timeWrapper) timeWrapper.style.display = isHome ? 'block' : 'none';
+  if(photoUpload) photoUpload.style.display = isHome ? 'flex' : 'none';
   data.dinner.checkin[child] = value;
   if(isHome && !data.dinner.checkinTime[child]){
     const now = new Date();

@@ -4,11 +4,11 @@
 <!--
 작성일: 2026-09-27
 작성자: 알뜰이
-용도: 알뜰이 가족 공유 가계부 + 저녁체크 (alttul-meal-plan main)
+용도: 알뜰이 가족 공유 메인 — 저녁체크·요청사항·식단 (아이들 용)
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>알뜰이 — 가족 공유 가계부 & 저녁체크</title>
+<title>알뜰이 — 우리 집 저녁체크</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
   :root {
@@ -26,6 +26,10 @@
     --warn-bg: #fff3e0;
     --danger: #c0392b;
     --danger-light: #fde8e5;
+    --minwoo: #3b82f6;
+    --minwoo-bg: #dbeafe;
+    --minjun: #f59e0b;
+    --minjun-bg: #fef3c7;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -36,400 +40,206 @@
     -moz-osx-font-smoothing: grayscale;
     line-height: 1.6;
   }
-  #root { max-width: 960px; margin: 0 auto; padding: 20px 16px 80px; }
-
-  /* Sticky tabs */
-  .tabs {
-    position: sticky; top: 0; z-index: 50;
-    display: flex; gap: 6px; overflow-x: auto; padding: 10px 0;
-    margin: -10px 0 20px;
-    background: rgba(242,240,235,.92);
-    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
-    border-bottom: 1px solid var(--border);
-    scrollbar-width: none;
-  }
-  .tabs::-webkit-scrollbar { display: none; }
-  .tabs button {
-    flex: none; border: none; background: #fff; color: var(--text-secondary);
-    font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: 999px;
-    border: 1px solid var(--border); white-space: nowrap; cursor: pointer;
-    font-family: inherit; transition: all .15s;
-  }
-  .tabs button:hover { color: var(--accent); border-color: var(--accent); }
-  .tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  #root { max-width: 480px; margin: 0 auto; padding: 16px 16px 100px; }
 
   /* Header */
-  header { text-align: center; margin-bottom: 20px; }
+  header { text-align: center; margin-bottom: 20px; position: relative; }
   header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
   header h1 span { color: var(--accent); }
   header .subtitle { font-size: 14px; color: var(--text-secondary); }
+  .parent-link {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    font-size: 12px; color: var(--text-secondary); text-decoration: none;
+    padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px;
+    background: var(--card); transition: all .15s;
+  }
+  .parent-link:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Sync status badge */
-  .sync-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--tag-bg); color: var(--text-secondary); margin-bottom: 16px; }
+  /* Sync status */
+  .sync-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--tag-bg); color: var(--text-secondary); margin-bottom: 16px; }
   .sync-badge.online { background: var(--ok-bg); color: var(--ok); }
   .sync-badge.offline { background: var(--warn-bg); color: var(--warn); }
 
-  /* Summary cards */
-  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 20px; }
-  .summary-card { background: var(--card); border-radius: 12px; padding: 16px 18px; border: 1px solid var(--border); }
-  .summary-card .label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 4px; }
-  .summary-card .value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-  .summary-card .value.danger { color: var(--danger); }
-  .summary-card .value.warn { color: var(--warn); }
-  .summary-card .value.ok { color: var(--ok); }
-  .summary-card .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-
-  /* Section */
-  .section { margin-bottom: 32px; }
-  .section-title { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .section-title .emoji { font-size: 18px; }
-
-  /* Card */
-  .card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 16px 18px; }
-  .card-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-
-  /* Buttons */
-  .btn {
-    flex: 1; min-width: 120px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: #fff; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text);
-    cursor: pointer; transition: all .15s;
-  }
-  .btn:hover { background: #faf9f6; }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .btn.primary:hover { background: #256b3b; }
-  .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
-  .btn.small { padding: 6px 10px; font-size: 12px; min-width: auto; }
-  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
-
-  /* Inputs */
-  .input-row { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-  .input-row > * { flex: 1; min-width: 100px; }
-  input, select, textarea {
-    font-family: inherit; font-size: 13px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--text);
-  }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); }
-  input.small { padding: 8px 10px; font-size: 12px; }
-  textarea { resize: vertical; min-height: 60px; width: 100%; }
-
-  /* Tables */
-  .table-wrap { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { background: #faf9f6; text-align: left; padding: 11px 14px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); border-bottom: 1px solid var(--border); }
-  tbody td { padding: 10px 14px; border-bottom: 1px solid #f0ede8; vertical-align: top; }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: #faf9f6; }
-  .right { text-align: right; }
-  .center { text-align: center; }
-
-  /* Expense items */
-  .expense-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; background: #faf9f6; margin-bottom: 8px; }
-  .expense-item:last-child { margin-bottom: 0; }
-  .expense-info { flex: 1; min-width: 0; }
-  .expense-name { font-weight: 600; font-size: 13.5px; }
-  .expense-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
-  .expense-amount { font-weight: 700; font-size: 14px; color: var(--danger); white-space: nowrap; }
-
-  /* Dinner check */
-  .dinner-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 18px 20px; margin-bottom: 16px; }
-  .dinner-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  /* Today's Dinner - MAIN */
+  .dinner-card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+  .dinner-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
   .dinner-title { font-size: 18px; font-weight: 700; }
-  .dinner-time { font-size: 14px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 4px 12px; border-radius: 999px; }
+  .dinner-time { font-size: 14px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 6px 14px; border-radius: 999px; }
   .dinner-place { font-size: 13px; color: var(--text-secondary); background: var(--tag-bg); padding: 4px 10px; border-radius: 999px; }
-  .dinner-menu { font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
+  .dinner-menu { font-size: 16px; line-height: 1.7; margin-bottom: 16px; padding: 12px; background: #faf9f6; border-radius: 10px; }
   .dinner-menu b { color: var(--text); }
-  .checkin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
-  .checkin-btn { padding: 10px 8px; border-radius: 8px; border: 1px solid var(--border); background: #fff; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
-  .checkin-btn:hover { background: #faf9f6; }
-  .checkin-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .checkin-btn.minwoo { border-color: #3b82f6; color: #3b82f6; }
-  .checkin-btn.minwoo.active { background: #3b82f6; color: #fff; }
-  .checkin-btn.minjun { border-color: #f59e0b; color: #f59e0b; }
-  .checkin-btn.minjun.active { background: #f59e0b; color: #fff; }
+  .dinner-empty { color: var(--text-secondary); text-align: center; padding: 20px; font-size: 14px; }
+
+  /* Check-in Buttons - BIG for kids */
+  .checkin-section { margin-bottom: 16px; }
+  .checkin-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
+  .checkin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .checkin-btn {
+    padding: 16px 12px; border-radius: 12px; border: 2px solid var(--border);
+    background: #fff; font-family: inherit; font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all .15s; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  }
+  .checkin-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+  .checkin-btn small { font-size: 11px; font-weight: 500; opacity: .8; }
+  .checkin-btn.minwoo { border-color: var(--minwoo); color: var(--minwoo); background: var(--minwoo-bg); }
+  .checkin-btn.minwoo.active { background: var(--minwoo); border-color: var(--minwoo); color: #fff; }
+  .checkin-btn.minjun { border-color: var(--minjun); color: var(--minjun); background: var(--minjun-bg); }
+  .checkin-btn.minjun.active { background: var(--minjun); border-color: var(--minjun); color: #fff; }
+
+  /* Status options */
+  .status-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
+  .status-btn {
+    padding: 8px 6px; border-radius: 8px; border: 1px solid var(--border);
+    background: #fff; font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
+  }
+  .status-btn.home { border-color: var(--ok); color: var(--ok); }
+  .status-btn.out { border-color: var(--minjun); color: var(--minjun); }
+  .status-btn.skip { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
 
   /* Requests */
-  .request-item { background: #faf9f6; border-radius: 8px; padding: 12px; margin-bottom: 8px; border-left: 3px solid var(--accent); }
-  .request-item.minwoo { border-left-color: #3b82f6; }
-  .request-item.minjun { border-left-color: #f59e0b; }
-  .request-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .request-section { margin-bottom: 16px; }
+  .request-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .request-title { font-size: 15px; font-weight: 700; }
+  .request-add-btn { padding: 6px 12px; font-size: 12px; }
+  .request-item {
+    background: #faf9f6; border-radius: 10px; padding: 12px; margin-bottom: 8px;
+    border-left: 3px solid var(--accent); animation: slideIn .2s ease;
+  }
+  .request-item.minwoo { border-left-color: var(--minwoo); }
+  .request-item.minjun { border-left-color: var(--minjun); }
+  .request-item.done { opacity: .5; background: #f0f0f0; }
+  .request-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
   .request-name { font-weight: 700; font-size: 13px; }
-  .request-name.minwoo { color: #3b82f6; }
-  .request-name.minjun { color: #f59e0b; }
+  .request-name.minwoo { color: var(--minwoo); }
+  .request-name.minjun { color: var(--minjun); }
   .request-time { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
-  .request-text { font-size: 13px; line-height: 1.6; }
-  .request-done { opacity: 0.5; text-decoration: line-through; }
+  .request-text { font-size: 13.5px; line-height: 1.6; word-break: keep-all; }
+  .request-item.done .request-text { text-decoration: line-through; color: var(--text-secondary); }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* Inventory */
-  .inv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .inv-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-  .inv-card.expired { border-color: var(--danger); background: #fef2f2; }
-  .inv-card.expiring { border-color: var(--warn); background: #fffbeb; }
-  .inv-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .inv-title { font-weight: 700; font-size: 13px; }
-  .inv-badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
-  .inv-badge.fridge { background: #dbeafe; color: #2563eb; }
-  .inv-badge.freezer { background: #e0e7ff; color: #4f46e5; }
-  .inv-badge.pantry { background: #fef3c7; color: #b45309; }
-  .inv-badge.expired { background: var(--danger-light); color: var(--danger); }
-  .inv-badge.expiring { background: var(--warn-bg); color: var(--warn); }
-  .inv-item { font-size: 12.5px; padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
-  .inv-item:last-child { border-bottom: none; }
-  .inv-item-name { color: var(--text); }
-  .inv-item-qty { color: var(--text-secondary); font-size: 12px; }
-
-  /* Meal plan */
-  .meal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; }
-  .meal-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
-  .meal-day { font-weight: 700; font-size: 13px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-  .meal-item { font-size: 12.5px; padding: 4px 0; display: flex; justify-content: space-between; }
-  .meal-item-name { color: var(--text); }
-  .meal-item-ing { color: var(--text-secondary); font-size: 11px; }
+  /* Meal Plan (simple view) */
+  .meal-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; }
+  .meal-day { font-weight: 700; font-size: 14px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .meal-day.today { color: var(--accent); }
+  .meal-item { font-size: 13px; padding: 4px 0; display: flex; justify-content: space-between; color: var(--text); }
+  .meal-item small { color: var(--text-secondary); font-size: 11px; }
 
   /* Notice */
-  .notice { background: var(--warn-bg); border-left: 4px solid var(--warn); border-radius: 8px; padding: 12px 16px; font-size: 12.5px; line-height: 1.7; margin-top: 12px; }
-  .notice b { color: var(--warn); }
+  .notice { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; font-size: 12px; line-height: 1.7; margin-top: 16px; }
+  .notice b { color: var(--accent); }
 
   /* Footer */
-  footer { text-align: center; padding-top: 30px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-secondary); line-height: 1.8; }
+  footer { text-align: center; padding-top: 24px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
 
-  @media (max-width: 640px) {
-    #root { padding: 16px 12px 60px; }
-    header h1 { font-size: 20px; }
-    .summary-grid { grid-template-columns: 1fr 1fr; }
-    .checkin-grid { grid-template-columns: 1fr 1fr; }
-  }
+  /* Modal for parent budget */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.show { display: flex; }
+  .modal { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .modal-title { font-size: 18px; font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); line-height: 1; }
+  .pin-input { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
+  .pin-input input { width: 48px; height: 48px; text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 4px; border: 2px solid var(--border); border-radius: 8px; }
+  .pin-input input:focus { outline: none; border-color: var(--accent); }
+  .pin-error { color: var(--danger); font-size: 12px; text-align: center; margin-top: 8px; display: none; }
+  .pin-error.show { display: block; }
 </style>
 </head>
 <body>
 <div id="root">
 
   <header>
-    <h1>🏠 <span>알뜰이</span> 가족 공유</h1>
-    <p class="subtitle">가계부 · 저녁체크 · 재고 · 식단 — 모두 한 곳에서</p>
+    <h1>🏠 <span>알뜰이</span> 우리 집</h1>
+    <p class="subtitle">오늘 저녁 뭐 먹지? · 준비물 말해줘</p>
+    <a href="budget.html" class="parent-link">🔒 부모 모드</a>
   </header>
 
   <!-- Sync Status -->
   <div id="syncBadge" class="sync-badge offline">⚪ 오프라인 · 로컬 저장 중</div>
 
-  <!-- Tabs -->
-  <nav class="tabs" id="tabs">
-    <button class="active" data-tab="budget">📊 가계부</button>
-    <button data-tab="dinner">🍽️ 저녁체크</button>
-    <button data-tab="inventory">🧊 재고</button>
-    <button data-tab="mealplan">📅 식단</button>
-  </nav>
-
-  <!-- ========== TAB 1: 가계부 ========== -->
-  <section class="section" id="tab-budget">
-    <div class="section-title"><span class="emoji">📊</span>이번 달 가계부</div>
-
-    <div class="summary-grid" id="budgetSummary">
-      <div class="summary-card">
-        <div class="label">예산</div>
-        <div class="value" id="budgetTotal">700,000</div>
-        <div class="sub">월 식비 예산</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">누적 지출</div>
-        <div class="value danger" id="budgetSpent">569,920</div>
-        <div class="sub"><span id="spentPct">81.4%</span> 소진</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">잔액</div>
-        <div class="value ok" id="budgetLeft">130,080</div>
-        <div class="sub">1일 <span id="dailyAvail">32,520</span>원 (4일 남음)</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">이번 주</div>
-        <div class="value warn" id="budgetWeek">0</div>
-        <div class="sub">주간 지출</div>
-      </div>
+  <!-- ========== TODAY'S DINNER (MAIN) ========== -->
+  <section class="dinner-card" id="todayDinner">
+    <div class="dinner-header">
+      <div class="dinner-title" id="dinnerDate">2026-09-27 (일)</div>
     </div>
-
-    <!-- Add expense -->
-    <div class="card" id="addExpenseCard">
-      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">➕</span>지출 추가</div></div>
-      <div class="input-row">
-        <input type="date" id="expDate" value="2026-09-27">
-        <select id="expCategory">
-          <option value="식비">🍽️ 식비</option>
-          <option value="장보기">🛒 장보기</option>
-          <option value="외식">🍖 외식</option>
-          <option value="간식">🍪 간식</option>
-          <option value="기타">📦 기타</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <input type="text" id="expName" placeholder="내역 (예: 마트 장보기, 치킨)">
-        <input type="number" id="expAmount" placeholder="금액" class="small">
-      </div>
-      <div class="input-row">
-        <input type="text" id="expMemo" placeholder="메모 (선택)">
-        <select id="expPayment" class="small">
-          <option value="카드">💳 카드</option>
-          <option value="현금">💵 현금</option>
-          <option value="상품권">🎟️ 상품권</option>
-        </select>
-      </div>
-      <div class="btn-group">
-        <button class="btn primary" onclick="addExpense()">추가하기</button>
-        <button class="btn" onclick="toggleExpenseForm()">닫기</button>
-      </div>
+    <div class="dinner-menu" id="dinnerMenu">
+      <div class="dinner-empty">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>
     </div>
-
-    <!-- Expense list -->
-    <div class="card">
-      <div class="card-header">
-        <div class="section-title" style="margin:0"><span class="emoji">📝</span>지출 내역 <span id="expenseCount" style="font-size:12px;font-weight:500;color:var(--text-secondary)"></span></div>
-        <div class="btn-group">
-          <button class="btn small" onclick="exportBudget()">📥 내보내기</button>
-          <button class="btn small" onclick="importBudget()">📤 가져오기</button>
-        </div>
-      </div>
-      <div id="expenseList"></div>
-    </div>
-
-    <div class="notice">
-      <b>💡 알뜰이 팁</b> 이번 달 잔액 <b>130,080원</b>으로 9/30까지 <b>1일 32,520원</b>입니다. 장보기 리스트를 미리 짜고 리스트 밖 구매는 금지!
+    <div id="dinnerMeta" style="display:none">
+      <div class="dinner-time" id="dinnerTime"></div>
+      <div class="dinner-place" id="dinnerPlace" style="margin-top:6px"></div>
     </div>
   </section>
 
-  <!-- ========== TAB 2: 저녁체크 ========== -->
-  <section class="section" id="tab-dinner" style="display:none">
-    <div class="section-title"><span class="emoji">🍽️</span>오늘 저녁 체크</div>
-
-    <!-- Today's dinner -->
-    <div class="dinner-card" id="todayDinner">
-      <div class="dinner-header">
-        <div>
-          <div class="dinner-title" id="dinnerDate">2026-09-27 (일)</div>
-          <div class="dinner-menu" id="dinnerMenu">메뉴를 입력해주세요</div>
-        </div>
-        <div>
-          <span class="dinner-time" id="dinnerTime">시간 미정</span>
-          <span class="dinner-place" id="dinnerPlace">장소 미정</span>
-        </div>
-      </div>
-      <div class="input-row">
-        <input type="text" id="editMenu" placeholder="메뉴 (예: 제육볶음 + 밥)">
-        <input type="time" id="editTime" class="small">
-      </div>
-      <div class="input-row">
-        <input type="text" id="editPlace" placeholder="장소 (예: 집, 식당명)">
-        <button class="btn primary small" onclick="saveDinner()">저장</button>
-      </div>
+  <!-- ========== CHECK-IN ========== -->
+  <section class="dinner-card checkin-section">
+    <div class="checkin-label">👨‍👦 오늘 저녁 어떻게 먹니?</div>
+    <div class="checkin-grid" id="checkinGrid">
+      <button class="checkin-btn minwoo" data-child="minwoo" onclick="toggleCheckin('minwoo')">
+        민우<br><small>확인 안 함</small>
+      </button>
+      <button class="checkin-btn minjun" data-child="minjun" onclick="toggleCheckin('minjun')">
+        민준<br><small>확인 안 함</small>
+      </button>
     </div>
-
-    <!-- Check-in buttons -->
-    <div class="card">
-      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">👨‍👦</span>아이들 체크인</div></div>
-      <div class="checkin-grid" id="checkinGrid">
-        <button class="checkin-btn minwoo" data-child="minwoo" onclick="toggleCheckin('minwoo')">민우<br><small>확인 안 함</small></button>
-        <button class="checkin-btn minjun" data-child="minjun" onclick="toggleCheckin('minjun')">민준<br><small>확인 안 함</small></button>
-      </div>
-      <div style="margin-top:10px;font-size:12px;color:var(--text-secondary)">
-        버튼을 눌러 상태 변경: <span class="checkin-btn minwoo" style="padding:2px 6px;font-size:10px">집에서 먹음</span> <span class="checkin-btn minjun" style="padding:2px 6px;font-size:10px">외식</span> <span class="checkin-btn" style="padding:2px 6px;font-size:10px;background:var(--danger-light);border-color:var(--danger);color:var(--danger)">안 먹음</span>
-      </div>
-    </div>
-
-    <!-- Requests -->
-    <div class="card">
-      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">📝</span>준비물·요청사항</div></div>
-      <div class="input-row">
-        <select id="reqChild" class="small">
-          <option value="minwoo">민우</option>
-          <option value="minjun">민준</option>
-        </select>
-        <input type="text" id="reqText" placeholder="요청 내용 (예: 내일 체육복 필요, 용돈 5천원)">
-      </div>
-      <div class="btn-group">
-        <button class="btn primary small" onclick="addRequest()">등록</button>
-      </div>
-      <div id="requestList" style="margin-top:12px"></div>
-    </div>
-
-    <!-- Past dinners -->
-    <div class="card">
-      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">📜</span>지난 저녁 기록</div></div>
-      <div id="pastDinnerList"></div>
+    <div class="status-options" id="statusOptions" style="display:none">
+      <button class="status-btn home" onclick="setCheckinStatus('집에서 먹음')">🏠 집에서 먹음</button>
+      <button class="status-btn out" onclick="setCheckinStatus('외식')">🍽️ 외식</button>
+      <button class="status-btn skip" onclick="setCheckinStatus('안 먹음')">❌ 안 먹음</button>
     </div>
   </section>
 
-  <!-- ========== TAB 3: 재고 ========== -->
-  <section class="section" id="tab-inventory" style="display:none">
-    <div class="section-title"><span class="emoji">🧊</span>냉장고·냉동실·건재 재고</div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="section-title" style="margin:0"><span class="emoji">➕</span>재고 추가</div>
-      </div>
-      <div class="input-row">
-        <input type="text" id="invName" placeholder="품목명 (예: 한돈, 계란, 김치)">
-        <select id="invLocation" class="small">
-          <option value="fridge">🧊 냉장</option>
-          <option value="freezer">❄️ 냉동</option>
-          <option value="pantry">📦 건재</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <input type="number" id="invQty" placeholder="수량" class="small">
-        <input type="text" id="invUnit" placeholder="단위 (예: 개, kg, 팩)" class="small">
-        <input type="date" id="invExpiry" class="small">
-      </div>
-      <div class="input-row">
-        <input type="text" id="invMemo" placeholder="메모 (선택)">
-        <button class="btn primary small" onclick="addInventory()">추가</button>
-      </div>
+  <!-- ========== REQUESTS ========== -->
+  <section class="dinner-card request-section">
+    <div class="request-header">
+      <div class="request-title">📝 준비물·부탁할 거</div>
     </div>
-
-    <div class="inv-grid" id="inventoryGrid">
-      <!-- 동적 생성 -->
+    <div class="input-row" style="display:flex;gap:8px;margin-bottom:10px">
+      <select id="reqChild" style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px">
+        <option value="minwoo">👦 민우</option>
+        <option value="minjun">👦 민준</option>
+      </select>
+      <input type="text" id="reqText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)" style="flex:3;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px">
     </div>
-
-    <div class="notice">
-      <b>⚠️ 유통기한 알림</b> 빨간 테두리 = 지남 / 노란 테두리 = 3일 내 임박. 주기적으로 확인하세요.
-    </div>
+    <button class="btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onclick="addRequest()">등록하기</button>
+    <div id="requestList" style="margin-top:12px"></div>
   </section>
 
-  <!-- ========== TAB 4: 식단계획 ========== -->
-  <section class="section" id="tab-mealplan" style="display:none">
-    <div class="section-title"><span class="emoji">📅</span>주간 식단 계획</div>
-
-    <div class="card">
-      <div class="card-header">
-        <div class="section-title" style="margin:0"><span class="emoji">✏️</span>식단 추가/수정</div>
-      </div>
-      <div class="input-row">
-        <input type="date" id="mealDate">
-        <select id="mealType" class="small">
-          <option value="아침">🌅 아침</option>
-          <option value="점심">☀️ 점심</option>
-          <option value="저녁">🌙 저녁</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <input type="text" id="mealName" placeholder="메뉴명 (예: 제육볶음)">
-        <input type="text" id="mealIngredients" placeholder="주요 재료 (재고에서 차감 예정)">
-      </div>
-      <div class="btn-group">
-        <button class="btn primary small" onclick="addMeal()">추가</button>
-      </div>
-    </div>
-
-    <div class="meal-grid" id="mealGrid">
-      <!-- 동적 생성 -->
-    </div>
-
-    <div class="card" style="margin-top:16px">
-      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">🛒</span>이번 주 장보기 리스트 (식단 기반)</div></div>
-      <div id="shoppingList"></div>
-    </div>
+  <!-- ========== THIS WEEK MEALS (Simple) ========== -->
+  <section>
+    <div style="font-size:15px;font-weight:700;margin-bottom:10px">📅 이번 주 식단</div>
+    <div id="mealList"></div>
   </section>
+
+  <div class="notice">
+    <b>💡 알뜰이 팁</b> 저녁 메뉴/시간은 부모님이 정해주세요. 형제가 "집에서 먹음/외식/안 먹음" 버튼 눌러주면 부모님께 바로 전달돼요!
+  </div>
 
   <footer>
-    🏠 <strong>알뜰이 가족 공유</strong> · 데이터는 브라우저에 저장되며 GitHub Pages에서 동기화됩니다.<br>
-    Tailscale 켜져 있으면 실시간 동기화, 꺼져 있으면 Pages 폴링 방식으로 동작합니다.
+    🏠 <strong>알뜰이 가족 공유</strong> · 데이터는 브라우저에 저장되며 자동 동기화됩니다.<br>
+    <a href="budget.html" style="color:var(--text-secondary)">🔒 부모 모드 (가계부·재고·예산)</a>
   </footer>
 
+</div>
+
+<!-- Parent Budget Modal (PIN) -->
+<div id="pinModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🔒 부모 모드 인증</div>
+      <button class="modal-close" onclick="closePinModal()">&times;</button>
+    </div>
+    <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px">가계부·예산·재고 관리는 부모만 접근 가능합니다.</p>
+    <div class="pin-input">
+      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
+      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
+    </div>
+    <div class="pin-error" id="pinError">비밀번호가 틀렸습니다</div>
+    <button class="btn" style="width:100%;margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer" onclick="verifyPin()">확인</button>
+    <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-secondary)">비밀번호: <b>가족 생일 4자리</b> (예: 0315)</p>
+  </div>
 </div>
 
 <script>
@@ -438,14 +248,13 @@ const STORAGE_KEY = 'alttul-family-2026';
 const SYNC_BASE = 'https://macbook-pro-54.tail1e8f41.ts.net';
 const SYNC_API = (location.origin === SYNC_BASE) ? '/api/state' : SYNC_BASE + '/api/state';
 const LIST_ID = 'family-2026';
+const PARENT_PIN = '0315'; // 가족 생일 4자리 - 박사님 변경 가능
 
 function loadData() {
   try {
     const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
     return v || getDefaultData();
-  } catch (e) {
-    return getDefaultData();
-  }
+  } catch (e) { return getDefaultData(); }
 }
 function saveData(d) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {}
@@ -454,7 +263,7 @@ function saveData(d) {
 function getDefaultData() {
   return {
     budget: { monthly: 700000, expenses: [] },
-    dinner: { today: { date: '2026-09-27', menu: '', time: '', place: '' }, checkin: { minwoo: '', minjun: '' }, requests: [], history: [] },
+    dinner: { today: { date: '', menu: '', time: '', place: '' }, checkin: { minwoo: '', minjun: '' }, requests: [], history: [] },
     inventory: [],
     mealplan: [],
     meta: { lastSync: 0 }
@@ -462,27 +271,13 @@ function getDefaultData() {
 }
 function formatNum(n) { return n.toLocaleString(); }
 function todayStr() { return new Date().toISOString().slice(0,10); }
-function daysLeftInMonth() {
-  const now = new Date();
-  const end = new Date(now.getFullYear(), now.getMonth()+1, 0);
-  return end.getDate() - now.getDate() + 1;
-}
+function dayName(d) { return ['일','월','화','수','목','금','토'][new Date(d).getDay()]; }
 
 // ========== 상태 ==========
 let data = loadData();
 let syncing = false, pending = false, syncTimer = null;
+let currentCheckinChild = null;
 const $syncBadge = document.getElementById('syncBadge');
-
-// ========== 탭 전환 ==========
-document.querySelectorAll('#tabs button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('#tabs button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('[id^="tab-"]').forEach(s => s.style.display = 'none');
-    document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
-    renderAll();
-  });
-});
 
 // ========== 동기화 ==========
 function scheduleSync() { clearTimeout(syncTimer); syncTimer = setTimeout(pushState, 400); }
@@ -493,7 +288,7 @@ async function pushState() {
     const res = await fetch(SYNC_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ list: LIST_ID, items: data }) });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const serverData = await res.json();
-    if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); }
+    if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); renderAll(); }
     $syncBadge.textContent = '🟢 온라인 · 동기화됨'; $syncBadge.className = 'sync-badge online';
   } catch (e) {
     $syncBadge.textContent = '⚪ 오프라인 · 로컬 저장 중'; $syncBadge.className = 'sync-badge offline';
@@ -511,240 +306,135 @@ async function pullState() {
   }
 }
 function mergeData(local, remote) {
-  // 각 섹션별 최신 타임스탬프 기준 병합 (단순화: remote 우선, 단 로컬에 더 최신 있으면 유지)
-  // 실제로는 품목별 타임스탬프 비교 필요하나 여기선 단순 병합
+  // Simple merge: remote wins for dinner/checkin/requests, local wins for budget/inventory/mealplan (parent data)
   const merged = JSON.parse(JSON.stringify(remote));
-  // 로컬만 있는 최신 데이터 보존 로직 생략 (단순화)
+  merged.budget = local.budget;
+  merged.inventory = local.inventory;
+  merged.mealplan = local.mealplan;
   return merged;
 }
-
-// 5초 폴링 + 포커스 시 동기화
 setInterval(pullState, 5000);
 window.addEventListener('focus', pullState);
 pullState();
 
 // ========== 렌더링 ==========
 function renderAll() {
-  renderBudget();
   renderDinner();
-  renderInventory();
-  renderMealPlan();
+  renderRequests();
+  renderMeals();
 }
 
-function renderBudget() {
-  const b = data.budget;
-  const spent = b.expenses.reduce((s, e) => s + (e.amount || 0), 0);
-  const left = b.monthly - spent;
-  const daily = daysLeftInMonth() > 0 ? Math.floor(left / daysLeftInMonth()) : 0;
-  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
-  const weekSpent = b.expenses.filter(e => new Date(e.date) >= weekAgo).reduce((s, e) => s + (e.amount || 0), 0);
-
-  document.getElementById('budgetTotal').textContent = formatNum(b.monthly);
-  document.getElementById('budgetSpent').textContent = formatNum(spent);
-  document.getElementById('spentPct').textContent = b.monthly ? Math.round(spent / b.monthly * 1000) / 10 + '%' : '0%';
-  document.getElementById('budgetLeft').textContent = formatNum(Math.max(0, left));
-  document.getElementById('dailyAvail').textContent = formatNum(daily);
-  document.getElementById('budgetWeek').textContent = formatNum(weekSpent);
-
-  // Expense list
-  const $list = document.getElementById('expenseList');
-  const $count = document.getElementById('expenseCount');
-  const sorted = [...b.expenses].sort((a, b) => new Date(b.date) - new Date(a.date));
-  $count.textContent = `(${sorted.length}건)`;
-  $list.innerHTML = sorted.map(e => `
-    <div class="expense-item">
-      <div class="expense-info">
-        <div class="expense-name">${e.name}</div>
-        <div class="expense-meta">${e.date} · ${e.category} · ${e.payment} ${e.memo ? '· ' + e.memo : ''}</div>
-      </div>
-      <div class="expense-amount">-${formatNum(e.amount)}원</div>
-    </div>
-  `).join('') || '<div style="padding:20px;text-align:center;color:var(--text-secondary)">지출 내역이 없습니다. 위 버튼으로 추가하세요.</div>';
-}
-
-function addExpense() {
-  const date = document.getElementById('expDate').value;
-  const category = document.getElementById('expCategory').value;
-  const name = document.getElementById('expName').value.trim();
-  const amount = parseInt(document.getElementById('expAmount').value) || 0;
-  const memo = document.getElementById('expMemo').value.trim();
-  const payment = document.getElementById('expPayment').value;
-  if (!name || !amount) return alert('내역과 금액을 입력하세요');
-  data.budget.expenses.push({ date, category, name, amount, memo, payment, t: Date.now() });
-  saveData(data); renderBudget();
-  document.getElementById('expName').value = ''; document.getElementById('expAmount').value = ''; document.getElementById('expMemo').value = '';
-}
-function toggleExpenseForm() { document.getElementById('addExpenseCard').style.display = document.getElementById('addExpenseCard').style.display === 'none' ? 'block' : 'none'; }
-function exportBudget() { const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'alttul-backup-' + todayStr() + '.json'; a.click(); URL.revokeObjectURL(url); }
-function importBudget() { const input = document.createElement('input'); input.type = 'file'; input.accept = '.json'; input.onchange = e => { const f = e.target.files[0]; if (!f) return; const reader = new FileReader(); reader.onload = () => { try { data = JSON.parse(reader.result); saveData(data); renderAll(); alert('가져오기 완료'); } catch (err) { alert('파일 오류'); } }; reader.readAsText(f); }; input.click(); }
-
-// ========== 저녁체크 ==========
 function renderDinner() {
   const d = data.dinner;
   const today = todayStr();
   if (d.today.date !== today) { d.today = { date: today, menu: '', time: '', place: '' }; d.checkin = { minwoo: '', minjun: '' }; saveData(data); }
-  document.getElementById('dinnerDate').textContent = today + ' (' + ['일','월','화','수','목','금','토'][new Date().getDay()] + ')';
-  document.getElementById('dinnerMenu').textContent = d.today.menu || '메뉴를 입력해주세요';
-  document.getElementById('dinnerTime').textContent = d.today.time ? d.today.time + ' 예정' : '시간 미정';
-  document.getElementById('dinnerPlace').textContent = d.today.place ? d.today.place : '장소 미정';
-  document.getElementById('editMenu').value = d.today.menu;
-  document.getElementById('editTime').value = d.today.time;
-  document.getElementById('editPlace').value = d.today.place;
-
+  document.getElementById('dinnerDate').textContent = today + ' (' + dayName(today) + ')';
+  const $menu = document.getElementById('dinnerMenu');
+  const $meta = document.getElementById('dinnerMeta');
+  const $time = document.getElementById('dinnerTime');
+  const $place = document.getElementById('dinnerPlace');
+  if (d.today.menu) {
+    $menu.innerHTML = '<b>' + d.today.menu + '</b>';
+    $meta.style.display = 'block';
+    $time.textContent = d.today.time ? '⏰ ' + d.today.time + ' 예정' : '⏰ 시간 미정';
+    $place.textContent = d.today.place ? '📍 ' + d.today.place : '📍 장소 미정';
+  } else {
+    $menu.innerHTML = '<div class="dinner-empty">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>';
+    $meta.style.display = 'none';
+  }
   // Checkin buttons
-  const c = d.checkin;
   ['minwoo', 'minjun'].forEach(k => {
-    const btn = document.querySelector(`.checkin-btn.${k}`);
+    const btn = document.querySelector('.checkin-btn.' + k);
     if (!btn) return;
-    const val = c[k] || '';
+    const val = d.checkin[k] || '';
     btn.classList.toggle('active', !!val);
-    btn.innerHTML = k === 'minwoo' ? '민우' : '민준';
-    btn.innerHTML += '<br><small>' + (val || '확인 안 함') + '</small>';
+    btn.innerHTML = (k === 'minwoo' ? '민우' : '민준') + '<br><small>' + (val || '확인 안 함') + '</small>';
   });
-
-  // Requests
-  renderRequests();
-
-  // Past dinners
-  const $past = document.getElementById('pastDinnerList');
-  $past.innerHTML = d.history.slice().reverse().slice(0, 14).map(h => `
-    <div class="expense-item">
-      <div class="expense-info">
-        <div class="expense-name">${h.date} · ${h.menu}</div>
-        <div class="expense-meta">${h.time} · ${h.place} · 민우:${h.checkin?.minwoo||'-'} / 민준:${h.checkin?.minjun||'-'}</div>
-      </div>
-    </div>
-  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-secondary)">지난 기록이 없습니다.</div>';
 }
 
-function saveDinner() {
-  const menu = document.getElementById('editMenu').value.trim();
-  const time = document.getElementById('editTime').value;
-  const place = document.getElementById('editPlace').value.trim();
-  data.dinner.today = { date: todayStr(), menu, time, place };
-  saveData(data); renderDinner();
-}
 function toggleCheckin(child) {
-  const states = ['', '집에서 먹음', '외식', '안 먹음'];
-  const cur = data.dinner.checkin[child] || '';
-  const idx = states.indexOf(cur);
-  data.dinner.checkin[child] = states[(idx + 1) % states.length];
+  currentCheckinChild = child;
+  document.getElementById('statusOptions').style.display = 'grid';
+  // Scroll to options
+  document.getElementById('statusOptions').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function setCheckinStatus(status) {
+  if (!currentCheckinChild) return;
+  data.dinner.checkin[currentCheckinChild] = status;
   saveData(data); renderDinner();
+  document.getElementById('statusOptions').style.display = 'none';
+  currentCheckinChild = null;
+}
+
+function renderRequests() {
+  const $list = document.getElementById('requestList');
+  $list.innerHTML = data.dinner.requests.map((r, i) => `
+    <div class="request-item ${r.child} ${r.done ? 'done' : ''}" onclick="toggleRequestDone(${i})">
+      <div class="request-top">
+        <span class="request-name ${r.child}">${r.child === 'minwoo' ? '👦 민우' : '👦 민준'}</span>
+        <span class="request-time">${r.time}</span>
+      </div>
+      <div class="request-text">${r.text}</div>
+    </div>
+  `).join('') || '<div style="text-align:center;color:var(--text-secondary);padding:16px;font-size:13px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';
 }
 function addRequest() {
   const child = document.getElementById('reqChild').value;
   const text = document.getElementById('reqText').value.trim();
-  if (!text) return;
+  if (!text) return alert('내용을 입력하세요');
   data.dinner.requests.unshift({ child, text, done: false, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), t: Date.now() });
   saveData(data); renderRequests(); document.getElementById('reqText').value = '';
 }
-function renderRequests() {
-  const $list = document.getElementById('requestList');
-  $list.innerHTML = data.dinner.requests.map((r, i) => `
-    <div class="request-item ${r.child} ${r.done ? 'request-done' : ''}">
-      <div class="request-header">
-        <span class="request-name ${r.child}">${r.child === 'minwoo' ? '👦 민우' : '👦 민준'}</span>
-        <span class="request-time">${r.time}</span>
-      </div>
-      <div class="request-text" onclick="toggleRequestDone(${i})">${r.text}</div>
-    </div>
-  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-secondary)">등록된 요청이 없습니다.</div>';
-}
 function toggleRequestDone(i) { data.dinner.requests[i].done = !data.dinner.requests[i].done; saveData(data); renderRequests(); }
 
-// ========== 재고 ==========
-function renderInventory() {
-  const $grid = document.getElementById('inventoryGrid');
-  const now = new Date(); now.setHours(0,0,0,0);
-  const threeDays = new Date(now); threeDays.setDate(threeDays.getDate() + 3);
-
-  const byLoc = { fridge: [], freezer: [], pantry: [] };
-  data.inventory.forEach(item => { if (byLoc[item.location]) byLoc[item.location].push(item); });
-
-  $grid.innerHTML = Object.entries(byLoc).map(([loc, items]) => `
-    <div class="inv-card">
-      <div class="inv-header">
-        <div class="inv-title">${loc === 'fridge' ? '🧊 냉장' : loc === 'freezer' ? '❄️ 냉동' : '📦 건재'} (${items.length}종)</div>
-      </div>
-      ${items.length === 0 ? '<div style="color:var(--text-secondary);font-size:12px;padding:8px">비어있음</div>' : items.map((item, idx) => {
-        const exp = item.expiry ? new Date(item.expiry) : null;
-        const isExpired = exp && exp < now;
-        const isExpiring = exp && exp >= now && exp <= threeDays;
-        const cardClass = isExpired ? 'expired' : isExpiring ? 'expiring' : '';
-        return `
-          <div class="inv-card ${cardClass}" style="margin-top:8px">
-            <div class="inv-header">
-              <div class="inv-title">${item.name}</div>
-              <span class="inv-badge ${loc} ${isExpired ? 'expired' : isExpiring ? 'expiring' : ''}">${isExpired ? '지남' : isExpiring ? '임박' : loc === 'fridge' ? '냉장' : loc === 'freezer' ? '냉동' : '건재'}</span>
-            </div>
-            <div class="inv-item"><span class="inv-item-name">수량</span><span class="inv-item-qty">${item.qty} ${item.unit}</span></div>
-            ${item.expiry ? `<div class="inv-item"><span class="inv-item-name">유통기한</span><span class="inv-item-qty">${item.expiry}</span></div>` : ''}
-            ${item.memo ? `<div class="inv-item"><span class="inv-item-name">메모</span><span class="inv-item-qty">${item.memo}</span></div>` : ''}
-            <div style="margin-top:8px"><button class="btn danger small" onclick="deleteInventory('${item.id}')">삭제</button></div>
-          </div>
-        `;
-      }).join('')}
+function renderMeals() {
+  const $list = document.getElementById('mealList');
+  const today = todayStr();
+  const weekMeals = data.mealplan.filter(m => new Date(m.date) >= new Date(today) && new Date(m.date) < new Date(Date.now() + 7*86400000));
+  if (weekMeals.length === 0) {
+    $list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:16px">이번 주 식단이 아직 없어요</div>';
+    return;
+  }
+  const byDate = {};
+  weekMeals.forEach(m => { if (!byDate[m.date]) byDate[m.date] = []; byDate[m.date].push(m); });
+  const dates = Object.keys(byDate).sort();
+  $list.innerHTML = dates.map(date => `
+    <div class="meal-card">
+      <div class="meal-day ${date === today ? 'today' : ''}">${date} (${dayName(date)})${date === today ? ' <span style="font-size:11px;background:var(--accent);color:#fff;padding:1px 6px;border-radius:999px">오늘</span>' : ''}</div>
+      ${byDate[date].map(m => `
+        <div class="meal-item">${m.type} · ${m.name}<small>${m.ingredients}</small></div>
+      `).join('')}
     </div>
   `).join('');
 }
-function addInventory() {
-  const name = document.getElementById('invName').value.trim();
-  const location = document.getElementById('invLocation').value;
-  const qty = parseFloat(document.getElementById('invQty').value) || 0;
-  const unit = document.getElementById('invUnit').value.trim();
-  const expiry = document.getElementById('invExpiry').value;
-  const memo = document.getElementById('invMemo').value.trim();
-  if (!name || !qty) return alert('품목명과 수량을 입력하세요');
-  data.inventory.push({ id: 'inv_' + Date.now(), name, location, qty, unit, expiry, memo, t: Date.now() });
-  saveData(data); renderInventory();
-  document.getElementById('invName').value = ''; document.getElementById('invQty').value = ''; document.getElementById('invUnit').value = ''; document.getElementById('invExpiry').value = ''; document.getElementById('invMemo').value = '';
-}
-function deleteInventory(id) { if (!confirm('삭제할까요?')) return; data.inventory = data.inventory.filter(i => i.id !== id); saveData(data); renderInventory(); }
 
-// ========== 식단계획 ==========
-function renderMealPlan() {
-  const $grid = document.getElementById('mealGrid');
-  const byDate = {};
-  data.mealplan.forEach(m => { if (!byDate[m.date]) byDate[m.date] = []; byDate[m.date].push(m); });
-  const dates = Object.keys(byDate).sort();
-  $grid.innerHTML = dates.map(date => `
-    <div class="meal-card">
-      <div class="meal-day">${date} (${['일','월','화','수','목','금','토'][new Date(date).getDay()]})</div>
-      ${byDate[date].map((m, i) => `
-        <div class="meal-item">
-          <span class="meal-item-name">${m.type} · ${m.name}</span>
-          <span class="meal-item-ing">${m.ingredients}</span>
-        </div>
-      `).join('')}
-      <div style="margin-top:8px;display:flex;gap:4px">
-        ${dates.indexOf(date) >= 0 ? `<button class="btn danger small" onclick="deleteMealDay('${date}')">일정 삭제</button>` : ''}
-      </div>
-    </div>
-  `).join('') || '<div style="text-align:center;padding:20px;color:var(--text-secondary)">등록된 식단이 없습니다. 위에서 추가하세요.</div>';
-
-  // Shopping list (simple: aggregate ingredients from this week)
-  const weekMeals = data.mealplan.filter(m => new Date(m.date) >= new Date(todayStr()) && new Date(m.date) < new Date(Date.now() + 7*86400000));
-  const ingMap = {};
-  weekMeals.forEach(m => { m.ingredients.split(',').forEach(i => { const t = i.trim(); if (t) ingMap[t] = (ingMap[t] || 0) + 1; }); });
-  document.getElementById('shoppingList').innerHTML = Object.entries(ingMap).map(([ing, cnt]) => `
-    <div class="expense-item" style="background:#f0fdf4;border-color:#bbf7d0">
-      <div class="expense-info"><div class="expense-name">${ing}</div><div class="expense-meta">${cnt}회 식단에 사용 예정</div></div>
-    </div>
-  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-secondary)">이번 주 식단 기반 장보기 리스트가 비어있습니다.</div>';
+// ========== PIN Modal ==========
+function openPinModal() { document.getElementById('pinModal').classList.add('show'); document.querySelector('.pin-input input').focus(); }
+function closePinModal() { document.getElementById('pinModal').classList.remove('show'); document.getElementById('pinError').classList.remove('show'); document.querySelectorAll('.pin-input input').forEach(i => i.value = ''); }
+function verifyPin() {
+  const pin = Array.from(document.querySelectorAll('.pin-input input')).map(i => i.value).join('');
+  if (pin === PARENT_PIN) {
+    closePinModal();
+    window.location.href = 'budget.html';
+  } else {
+    document.getElementById('pinError').classList.add('show');
+    document.querySelectorAll('.pin-input input').forEach(i => i.value = '');
+    document.querySelector('.pin-input input').focus();
+  }
 }
-function addMeal() {
-  const date = document.getElementById('mealDate').value;
-  const type = document.getElementById('mealType').value;
-  const name = document.getElementById('mealName').value.trim();
-  const ingredients = document.getElementById('mealIngredients').value.trim();
-  if (!date || !name) return alert('날짜와 메뉴를 입력하세요');
-  data.mealplan.push({ date, type, name, ingredients, t: Date.now() });
-  saveData(data); renderMealPlan();
-  document.getElementById('mealName').value = ''; document.getElementById('mealIngredients').value = '';
-}
-function deleteMealDay(date) { if (!confirm('이날 식단 전체 삭제?')) return; data.mealplan = data.mealplan.filter(m => m.date !== date); saveData(data); renderMealPlan(); }
+// Auto-focus next pin input
+document.querySelectorAll('.pin-input input').forEach((input, idx, arr) => {
+  input.addEventListener('input', () => { if (input.value && idx < arr.length - 1) arr[idx + 1].focus(); });
+  input.addEventListener('keydown', e => { if (e.key === 'Backspace' && !input.value && idx > 0) arr[idx - 1].focus(); });
+});
 
-// 초기 렌더
+// Parent link click -> PIN modal
+document.querySelector('.parent-link').addEventListener('click', e => {
+  e.preventDefault();
+  openPinModal();
+});
+
+// Initial render
 renderAll();
 </script>
 </body>

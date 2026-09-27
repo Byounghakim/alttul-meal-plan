@@ -146,11 +146,6 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
           </label>
         </div>
         <div id="cinMinwooStatus" class="checkin-status minwoo"></div>
-        <div class="photo-upload" id="minwooPhotoUpload" style="display:none">
-          <input type="file" id="minwooPhotoInput" accept="image/*" onchange="uploadPhoto('minwoo',this)" style="display:none">
-          <label for="minwooPhotoInput">📷 사진 올리기</label>
-        </div>
-        <div id="cinMinwooStatus" class="checkin-status minwoo"></div>
       </div>
 
       <div style="border:2px solid var(--minjun);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
@@ -173,20 +168,6 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
           </label>
         </div>
         <div id="cinMinjunStatus" class="checkin-status minjun"></div>
-        <div class="photo-upload" id="minjunPhotoUpload" style="display:none">
-          <input type="file" id="minjunPhotoInput" accept="image/*" onchange="uploadPhoto('minjun',this)" style="display:none">
-          <label for="minjunPhotoInput">📷 사진 올리기</label>
-        </div>
-        <div id="cinMinjunStatus" class="checkin-status minjun"></div>
-      </div>
-    </div>
-
-  <section class="card">
-    <h2>📝 준비물·부탁할 거</h2>
-    <div class="memo-row">
-      <select id="memoChild"><option value="minwoo">👦 민우</option><option value="minjun">👦 민준</option></select>
-      <input type="text" id="memoText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)">
-      <button onclick="addMemo()">등록하기</button>
     </div>
     <div id="memoList" class="memo-list"></div>
   </section>

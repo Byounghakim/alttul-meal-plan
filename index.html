@@ -83,14 +83,44 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
 
   <section class="card">
     <h2>👨‍👦 오늘 저녁 어떻게 먹니?</h2>
-    <div class="checkin-grid" id="checkinGrid">
-      <button class="checkin-btn minwoo" data-child="minwoo" onclick="toggleCheckin('minwoo')">민우<br><small>확인 안 함</small></button>
-      <button class="checkin-btn minjun" data-child="minjun" onclick="toggleCheckin('minjun')">민준<br><small>확인 안 함</small></button>
-    </div>
-    <div class="status-btns" id="statusBtns">
-      <button class="status-btn home" onclick="setCheckin('집에서 먹음')">🏠 집에서 먹음</button>
-      <button class="status-btn out" onclick="setCheckin('외식')">🍽️ 외식</button>
-      <button class="status-btn skip" onclick="setCheckin('안 먹음')">❌ 안 먹음</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="border:2px solid var(--minwoo);border-radius:16px;padding:20px;background:linear-gradient(135deg,var(--minwooL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minwoo);font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:8px">👦 민우</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:22px;height:22px;accent-color:var(--minwoo);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">🏠 집에서 먹음</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')" style="width:22px;height:22px;accent-color:var(--minjun);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">🍽️ 외식</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_skip" value="안 먹음" onchange="setCheckin('minwoo','안 먹음')" style="width:22px;height:22px;accent-color:var(--danger);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">❌ 안 먹음</span>
+          </label>
+        </div>
+        <div id="cinMinwooStatus" style="margin-top:12px;padding:10px;background:#f0fdf4;border-radius:8px;text-align:center;font-weight:600;color:var(--ok);font-size:14px;display:none"></div>
+      </div>
+
+      <div style="border:2px solid var(--minjun);border-radius:16px;padding:20px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minjun);font-size:18px;margin-bottom:16px;display:flex;align-items:center;gap:8px">👦 민준</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')" style="width:22px;height:22px;accent-color:var(--minwoo);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">🏠 집에서 먹음</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')" style="width:22px;height:22px;accent-color:var(--minjun);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">🍽️ 외식</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_skip" value="안 먹음" onchange="setCheckin('minjun','안 먹음')" style="width:22px;height:22px;accent-color:var(--danger);flex-shrink:0">
+            <span style="font-size:16px;font-weight:600;color:var(--text)">❌ 안 먹음</span>
+          </label>
+        </div>
+        <div id="cinMinjunStatus" style="margin-top:12px;padding:10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:600;color:var(--warn);font-size:14px;display:none"></div>
+      </div>
     </div>
   </section>
 
@@ -144,12 +174,29 @@ function render(){
   document.getElementById('dinnerMenu').innerHTML=d.today.menu?'<b>'+d.today.menu+'</b>':'아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small>';
   const $m=document.getElementById('dinnerMeta'),$t=document.getElementById('dinnerTime'),$p=document.getElementById('dinnerPlace');
   if(d.today.menu){$m.style.display='flex';$t.textContent=d.today.time?'⏰ '+d.today.time+' 예정':'⏰ 시간 미정';$p.textContent=d.today.place?'📍 '+d.today.place:'📍 장소 미정'}else{$m.style.display='none'}
-  ['minwoo','minjun'].forEach(k=>{const b=document.querySelector('.checkin-btn.'+k);if(!b)return;b.classList.toggle('on',!!d.checkin[k]);b.innerHTML=(k==='minwoo'?'민우':'민준')+'<br><small>'+(d.checkin[k]||'확인 안 함')+'</small>';});
+  ['minwoo','minjun'].forEach(k=>{
+    const val = d.checkin[k] || '';
+    ['home','out','skip'].forEach(opt=>{
+      const el = document.querySelector(`input[name="cin_${k}_${opt}"]`);
+      if (el) el.checked = (val === el.value);
+    });
+    const $s = document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)+'Status');
+    if ($s) {
+      if (val) { $s.textContent = val; $s.style.display = 'block'; }
+      else { $s.style.display = 'none'; }
+    }
+  });
   renderMemos();
 }
-let cur=null;
-function toggleCheckin(c){cur=c;document.getElementById('statusBtns').style.display='grid';document.getElementById('statusBtns').scrollIntoView({behavior:'smooth',block:'nearest'})}
-function setCheckin(s){if(!cur)return;data.dinner.checkin[cur]=s;save();render();document.getElementById('statusBtns').style.display='none';cur=null}
+function setCheckin(child, value) {
+  // Uncheck other checkboxes for this child
+  ['home','out','skip'].forEach(k => {
+    const el = document.querySelector(`input[name="cin_${child}_${k}"]`);
+    if (el && el.value !== value) el.checked = false;
+  });
+  data.dinner.checkin[child] = value;
+  save(); render();
+}
 function renderMemos(){const $l=document.getElementById('memoList');$l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';}
 function addMemo(){const c=document.getElementById('memoChild').value,t=document.getElementById('memoText').value.trim();if(!t)return alert('내용을 입력하세요');data.dinner.memos.unshift({child:c,text:t,done:false,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),t:Date.now()});save();renderMemos();document.getElementById('memoText').value='';}
 function toggleMemo(i){data.dinner.memos[i].done=!data.dinner.memos[i].done;save();renderMemos();}

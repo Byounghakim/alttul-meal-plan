@@ -257,8 +257,10 @@ function render(){
   if(d.today.menu){
     $m.style.display='flex';
     const times = [];
-    if(d.checkinTime.minwoo) times.push('👦 민우 '+d.checkinTime.minwoo);
-    if(d.checkinTime.minjun) times.push('👦 민준 '+d.checkinTime.minjun);
+    const timeMinwoo = d.checkinTime.minwoo || d.today.time;
+    const timeMinjun = d.checkinTime.minjun || d.today.timeMinjun;
+    if(timeMinwoo) times.push('👦 민우 '+timeMinwoo);
+    if(timeMinjun) times.push('👦 민준 '+timeMinjun);
     $t.textContent=times.length?times.join(' / '):'⏰ 시간 미정';
     $p.textContent=d.today.place?'📍 '+d.today.place:'📍 장소 미정';
     if(d.today.photo){

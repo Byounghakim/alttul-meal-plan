@@ -327,7 +327,13 @@ function renderAll() {
 function renderDinner() {
   const d = data.dinner;
   const today = todayStr();
-  if (d.today.date !== today) { d.today = { date: today, menu: '', time: '', place: '' }; d.checkin = { minwoo: '', minjun: '' }; saveData(data); }
+  if (!d.today || d.today.date !== today) {
+    d.today = { date: today, menu: '', time: '', place: '' };
+    d.checkin = { minwoo: '', minjun: '' };
+    if (!d.requests) d.requests = [];
+    if (!d.history) d.history = [];
+    saveData(data);
+  }
   document.getElementById('dinnerDate').textContent = today + ' (' + dayName(today) + ')';
   const $menu = document.getElementById('dinnerMenu');
   const $meta = document.getElementById('dinnerMeta');

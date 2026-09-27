@@ -1,479 +1,159 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<!--
-작성일: 2026-09-27
-작성자: 알뜰이
-용도: 알뜰이 가족 공유 메인 — 저녁체크·요청사항·식단 (아이들 용)
--->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>알뜰이 — 우리 집 저녁체크</title>
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
-  :root {
-    --bg: #f2f0eb;
-    --card: #ffffff;
-    --text: #1e1e1e;
-    --text-secondary: #6b6b6b;
-    --accent: #2d7d46;
-    --accent-light: #e8f5e9;
-    --border: #e8e5df;
-    --tag-bg: #f7f6f2;
-    --ok: #2e7d32;
-    --ok-bg: #e8f5e9;
-    --warn: #b26a00;
-    --warn-bg: #fff3e0;
-    --danger: #c0392b;
-    --danger-light: #fde8e5;
-    --minwoo: #3b82f6;
-    --minwoo-bg: #dbeafe;
-    --minjun: #f59e0b;
-    --minjun-bg: #fef3c7;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    background: var(--bg);
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    line-height: 1.6;
-  }
-  #root { max-width: 480px; margin: 0 auto; padding: 16px 16px 100px; }
-
-  /* Header */
-  header { text-align: center; margin-bottom: 20px; position: relative; }
-  header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
-  header h1 span { color: var(--accent); }
-  header .subtitle { font-size: 14px; color: var(--text-secondary); }
-  .parent-link {
-    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-    font-size: 12px; color: var(--text-secondary); text-decoration: none;
-    padding: 6px 10px; border: 1px solid var(--border); border-radius: 999px;
-    background: var(--card); transition: all .15s;
-  }
-  .parent-link:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Sync status */
-  .sync-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 999px; background: var(--tag-bg); color: var(--text-secondary); margin-bottom: 16px; }
-  .sync-badge.online { background: var(--ok-bg); color: var(--ok); }
-  .sync-badge.offline { background: var(--warn-bg); color: var(--warn); }
-
-  /* Today's Dinner - MAIN */
-  .dinner-card { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-  .dinner-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .dinner-title { font-size: 18px; font-weight: 700; }
-  .dinner-time { font-size: 14px; font-weight: 600; color: var(--accent); background: var(--accent-light); padding: 6px 14px; border-radius: 999px; }
-  .dinner-place { font-size: 13px; color: var(--text-secondary); background: var(--tag-bg); padding: 4px 10px; border-radius: 999px; }
-  .dinner-menu { font-size: 16px; line-height: 1.7; margin-bottom: 16px; padding: 12px; background: #faf9f6; border-radius: 10px; }
-  .dinner-menu b { color: var(--text); }
-  .dinner-empty { color: var(--text-secondary); text-align: center; padding: 20px; font-size: 14px; }
-
-  /* Check-in Buttons - BIG for kids */
-  .checkin-section { margin-bottom: 16px; }
-  .checkin-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 10px; }
-  .checkin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .checkin-btn {
-    padding: 16px 12px; border-radius: 12px; border: 2px solid var(--border);
-    background: #fff; font-family: inherit; font-size: 14px; font-weight: 700;
-    cursor: pointer; transition: all .15s; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-  }
-  .checkin-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
-  .checkin-btn small { font-size: 11px; font-weight: 500; opacity: .8; }
-  .checkin-btn.minwoo { border-color: var(--minwoo); color: var(--minwoo); background: var(--minwoo-bg); }
-  .checkin-btn.minwoo.active { background: var(--minwoo); border-color: var(--minwoo); color: #fff; }
-  .checkin-btn.minjun { border-color: var(--minjun); color: var(--minjun); background: var(--minjun-bg); }
-  .checkin-btn.minjun.active { background: var(--minjun); border-color: var(--minjun); color: #fff; }
-
-  /* Status options */
-  .status-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 10px; }
-  .status-btn {
-    padding: 8px 6px; border-radius: 8px; border: 1px solid var(--border);
-    background: #fff; font-family: inherit; font-size: 11px; font-weight: 600; cursor: pointer;
-  }
-  .status-btn.home { border-color: var(--ok); color: var(--ok); }
-  .status-btn.out { border-color: var(--minjun); color: var(--minjun); }
-  .status-btn.skip { border-color: var(--danger); color: var(--danger); background: var(--danger-light); }
-
-  /* Requests */
-  .request-section { margin-bottom: 16px; }
-  .request-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .request-title { font-size: 15px; font-weight: 700; }
-  .request-add-btn { padding: 6px 12px; font-size: 12px; }
-  .request-item {
-    background: #faf9f6; border-radius: 10px; padding: 12px; margin-bottom: 8px;
-    border-left: 3px solid var(--accent); animation: slideIn .2s ease;
-  }
-  .request-item.minwoo { border-left-color: var(--minwoo); }
-  .request-item.minjun { border-left-color: var(--minjun); }
-  .request-item.done { opacity: .5; background: #f0f0f0; }
-  .request-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .request-name { font-weight: 700; font-size: 13px; }
-  .request-name.minwoo { color: var(--minwoo); }
-  .request-name.minjun { color: var(--minjun); }
-  .request-time { font-size: 11px; color: var(--text-secondary); margin-left: auto; }
-  .request-text { font-size: 13.5px; line-height: 1.6; word-break: keep-all; }
-  .request-item.done .request-text { text-decoration: line-through; color: var(--text-secondary); }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Meal Plan (simple view) */
-  .meal-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; }
-  .meal-day { font-weight: 700; font-size: 14px; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .meal-day.today { color: var(--accent); }
-  .meal-item { font-size: 13px; padding: 4px 0; display: flex; justify-content: space-between; color: var(--text); }
-  .meal-item small { color: var(--text-secondary); font-size: 11px; }
-
-  /* Notice */
-  .notice { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 8px; padding: 12px 16px; font-size: 12px; line-height: 1.7; margin-top: 16px; }
-  .notice b { color: var(--accent); }
-
-  /* Footer */
-  footer { text-align: center; padding-top: 24px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
-
-  /* Modal for parent budget */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-  .modal-overlay.show { display: flex; }
-  .modal { background: var(--card); border-radius: 16px; padding: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
-  .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-  .modal-title { font-size: 18px; font-weight: 700; }
-  .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-secondary); line-height: 1; }
-  .pin-input { display: flex; gap: 8px; justify-content: center; margin-bottom: 16px; }
-  .pin-input input { width: 48px; height: 48px; text-align: center; font-size: 20px; font-weight: 700; letter-spacing: 4px; border: 2px solid var(--border); border-radius: 8px; }
-  .pin-input input:focus { outline: none; border-color: var(--accent); }
-  .pin-error { color: var(--danger); font-size: 12px; text-align: center; margin-top: 8px; display: none; }
-  .pin-error.show { display: block; }
+:root {
+  --bg:#f2f0eb; --card:#fff; --text:#1e1e1e; --text2:#6b6b6b;
+  --accent:#2d7d46; --accentL:#e8f5e9; --border:#e8e5df;
+  --tag:#f7f6f2; --ok:#2e7d32; --okL:#e8f5e9;
+  --warn:#b26a00; --warnL:#fff3e0;
+  --danger:#c0392b; --dangerL:#fde8e5;
+  --minwoo:#3b82f6; --minwooL:#dbeafe;
+  --minjun:#f59e0b; --minjunL:#fef3c7;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);line-height:1.6}
+#root{max-width:480px;margin:0 auto;padding:16px 16px 100px}
+header{text-align:center;margin-bottom:20px;position:relative}
+header h1{font-size:24px;font-weight:700;margin-bottom:4px}
+header h1 span{color:var(--accent)}
+header .sub{font-size:14px;color:var(--text2)}
+.sync{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--tag);color:var(--text2);margin-bottom:16px}
+.sync.on{background:var(--okL);color:var(--ok)}
+.sync.off{background:var(--warnL);color:var(--warn)}
+.card{background:var(--card);border-radius:16px;border:1px solid var(--border);padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card h2{font-size:18px;font-weight:700;margin-bottom:16px}
+.dinner-menu{font-size:16px;line-height:1.7;padding:12px;background:#faf9f6;border-radius:10px;margin-bottom:12px}
+.dinner-menu b{color:var(--text)}
+.dinner-meta{display:flex;gap:12px;font-size:13px;color:var(--text2);flex-wrap:wrap;margin-bottom:16px}
+.checkin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.checkin-btn{padding:16px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .15s}
+.checkin-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.checkin-btn small{font-size:11px;font-weight:500;opacity:.8}
+.checkin-btn.minwoo{border-color:var(--minwoo);color:var(--minwoo);background:var(--minwooL)}
+.checkin-btn.minwoo.on{background:var(--minwoo);border-color:var(--minwoo);color:#fff}
+.checkin-btn.minjun{border-color:var(--minjun);color:var(--minjun);background:var(--minjunL)}
+.checkin-btn.minjun.on{background:var(--minjun);border-color:var(--minjun);color:#fff}
+.status-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px;display:none}
+.status-btn{padding:8px 6px;border-radius:8px;border:1px solid var(--border);background:#fff;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.status-btn.home{border-color:var(--ok);color:var(--ok)}
+.status-btn.out{border-color:var(--minjun);color:var(--minjun)}
+.status-btn.skip{border-color:var(--danger);color:var(--danger);background:var(--dangerL)}
+.memo-row{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.memo-row select,.memo-row input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px}
+.memo-row button{width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.memo-list{margin-top:12px}
+.memo-item{background:#faf9f6;border-radius:10px;padding:12px;margin-bottom:8px;border-left:3px solid var(--accent);animation:slideIn .2s ease}
+.memo-item.minwoo{border-left-color:var(--minwoo)}
+.memo-item.minjun{border-left-color:var(--minjun)}
+.memo-item.done{opacity:.5;background:#f0f0f0}
+.memo-top{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.memo-name{font-weight:700;font-size:13px}
+.memo-name.minwoo{color:var(--minwoo)}
+.memo-name.minjun{color:var(--minjun)}
+.memo-time{font-size:11px;color:var(--text2);margin-left:auto}
+.memo-text{font-size:13.5px;line-height:1.6}
+.memo-item.done .memo-text{text-decoration:line-through;color:var(--text2)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);font-size:11px;color:var(--text2);line-height:1.8}
 </style>
 </head>
 <body>
 <div id="root">
-
   <header>
     <h1>🏠 <span>알뜰이</span> 우리 집</h1>
-    <p class="subtitle">오늘 저녁 뭐 먹지? · 준비물 말해줘</p>
-    <a href="budget.html" class="parent-link">🔒 부모 모드</a>
+    <p class="sub">오늘 저녁 뭐 먹지? · 준비물 말해줘</p>
   </header>
+  <div id="syncBadge" class="sync off">⚪ 오프라인 · 로컬 저장 중</div>
 
-  <!-- Sync Status -->
-  <div id="syncBadge" class="sync-badge offline">⚪ 오프라인 · 로컬 저장 중</div>
-
-  <!-- ========== TODAY'S DINNER (MAIN) ========== -->
-  <section class="dinner-card" id="todayDinner">
-    <div class="dinner-header">
-      <div class="dinner-title" id="dinnerDate">2026-09-27 (일)</div>
-    </div>
+  <section class="card" id="todayDinner">
+    <h2>🍽️ 오늘 저녁</h2>
     <div class="dinner-menu" id="dinnerMenu">
-      <div class="dinner-empty">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>
+      <div style="color:var(--text2);text-align:center;padding:20px">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>
     </div>
-    <div id="dinnerMeta" style="display:none">
-      <div class="dinner-time" id="dinnerTime"></div>
-      <div class="dinner-place" id="dinnerPlace" style="margin-top:6px"></div>
+    <div id="dinnerMeta" style="display:none" class="dinner-meta">
+      <span id="dinnerTime"></span>
+      <span id="dinnerPlace"></span>
     </div>
   </section>
 
-  <!-- ========== CHECK-IN ========== -->
-  <section class="dinner-card checkin-section">
-    <div class="checkin-label">👨‍👦 오늘 저녁 어떻게 먹니?</div>
+  <section class="card">
+    <h2>👨‍👦 오늘 저녁 어떻게 먹니?</h2>
     <div class="checkin-grid" id="checkinGrid">
-      <button class="checkin-btn minwoo" data-child="minwoo" onclick="toggleCheckin('minwoo')">
-        민우<br><small>확인 안 함</small>
-      </button>
-      <button class="checkin-btn minjun" data-child="minjun" onclick="toggleCheckin('minjun')">
-        민준<br><small>확인 안 함</small>
-      </button>
+      <button class="checkin-btn minwoo" data-child="minwoo" onclick="toggleCheckin('minwoo')">민우<br><small>확인 안 함</small></button>
+      <button class="checkin-btn minjun" data-child="minjun" onclick="toggleCheckin('minjun')">민준<br><small>확인 안 함</small></button>
     </div>
-    <div class="status-options" id="statusOptions" style="display:none">
-      <button class="status-btn home" onclick="setCheckinStatus('집에서 먹음')">🏠 집에서 먹음</button>
-      <button class="status-btn out" onclick="setCheckinStatus('외식')">🍽️ 외식</button>
-      <button class="status-btn skip" onclick="setCheckinStatus('안 먹음')">❌ 안 먹음</button>
+    <div class="status-btns" id="statusBtns">
+      <button class="status-btn home" onclick="setCheckin('집에서 먹음')">🏠 집에서 먹음</button>
+      <button class="status-btn out" onclick="setCheckin('외식')">🍽️ 외식</button>
+      <button class="status-btn skip" onclick="setCheckin('안 먹음')">❌ 안 먹음</button>
     </div>
   </section>
 
-  <!-- ========== REQUESTS ========== -->
-  <section class="dinner-card request-section">
-    <div class="request-header">
-      <div class="request-title">📝 준비물·부탁할 거</div>
+  <section class="card">
+    <h2>📝 준비물·부탁할 거</h2>
+    <div class="memo-row">
+      <select id="memoChild"><option value="minwoo">👦 민우</option><option value="minjun">👦 민준</option></select>
+      <input type="text" id="memoText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)">
+      <button onclick="addMemo()">등록하기</button>
     </div>
-    <div class="input-row" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
-      <select id="reqChild" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;width:100%">
-        <option value="minwoo">👦 민우</option>
-        <option value="minjun">👦 민준</option>
-      </select>
-      <input type="text" id="reqText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;width:100%;box-sizing:border-box">
-    </div>
-    <button class="btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onclick="addRequest()">등록하기</button>
-    <div id="requestList" style="margin-top:12px"></div>
+    <div id="memoList" class="memo-list"></div>
   </section>
-
-  <!-- ========== THIS WEEK MEALS (Simple) ========== -->
-  <section>
-    <div style="font-size:15px;font-weight:700;margin-bottom:10px">📅 이번 주 식단</div>
-    <div id="mealList"></div>
-  </section>
-
-  <div class="notice">
-    <b>💡 알뜰이 팁</b> 저녁 메뉴/시간은 부모님이 정해주세요. 형제가 "집에서 먹음/외식/안 먹음" 버튼 눌러주면 부모님께 바로 전달돼요!
-  </div>
 
   <footer>
-    🏠 <strong>알뜰이 가족 공유</strong> · 데이터는 브라우저에 저장되며 자동 동기화됩니다.<br>
-    <a href="budget.html" style="color:var(--text-secondary)">🔒 부모 모드 (가계부·재고·예산)</a>
+    🏠 <strong>알뜰이 가족 공유</strong> · 데이터는 자동 동기화됩니다.
   </footer>
-
-</div>
-
-<!-- Parent Budget Modal (PIN) -->
-<div id="pinModal" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title">🔒 부모 모드 인증</div>
-      <button class="modal-close" onclick="closePinModal()">&times;</button>
-    </div>
-    <p style="text-align:center;color:var(--text-secondary);margin-bottom:16px">가계부·예산·재고 관리는 부모만 접근 가능합니다.</p>
-    <div class="pin-input">
-      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-      <input type="password" maxlength="1" inputmode="numeric" autocomplete="off">
-    </div>
-    <div class="pin-error" id="pinError">비밀번호가 틀렸습니다</div>
-    <button class="btn" style="width:100%;margin-top:16px;padding:12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer" onclick="verifyPin()">확인</button>
-    <p style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-secondary)">비밀번호: <b>가족 생일 4자리</b> (예: 0315)</p>
-  </div>
 </div>
 
 <script>
-// ========== 공통 유틸 ==========
-const STORAGE_KEY = 'alttul-family-2026';
-const SYNC_BASE = 'https://macbook-pro-54.tail1e8f41.ts.net';
-const SYNC_API = (location.origin === SYNC_BASE) ? '/api/state' : SYNC_BASE + '/api/state';
-const LIST_ID = 'family-2026';
-const PARENT_PIN = '0315'; // 가족 생일 4자리 - 박사님 변경 가능
+const KEY='alttul-family-2026';
+const SYNC='https://macbook-pro-54.tail1e8f41.ts.net/api/state';
+const LIST='family-2026';
+const $sync=document.getElementById('syncBadge');
+let data={dinner:{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]}};
+let curChild=null;
 
-function loadData() {
-  try {
-    const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (!v) return getDefaultData();
-    // 구버전 데이터 호환: dinner 누락 시 기본값 보완
-    if (!v.dinner) v.dinner = getDefaultData().dinner;
-    if (!v.dinner.today) v.dinner.today = { date: '', menu: '', time: '', place: '' };
-    if (!v.dinner.checkin) v.dinner.checkin = { minwoo: '', minjun: '' };
-    if (!v.dinner.requests) v.dinner.requests = [];
-    if (!v.dinner.history) v.dinner.history = [];
-    if (!v.budget) v.budget = getDefaultData().budget;
-    if (!v.inventory) v.inventory = [];
-    if (!v.mealplan) v.mealplan = [];
-    return v;
-  } catch (e) { return getDefaultData(); }
-}
-function saveData(d) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); } catch (e) {}
-  scheduleSync();
-}
-function getDefaultData() {
-  return {
-    budget: { monthly: 700000, expenses: [] },
-    dinner: { today: { date: '', menu: '', time: '', place: '' }, checkin: { minwoo: '', minjun: '' }, requests: [], history: [] },
-    inventory: [],
-    mealplan: [],
-    meta: { lastSync: 0 }
-  };
-}
-function formatNum(n) { return n.toLocaleString(); }
-function todayStr() { return new Date().toISOString().slice(0,10); }
-function dayName(d) { return ['일','월','화','수','목','금','토'][new Date(d).getDay()]; }
-
-// ========== 상태 ==========
-let data = loadData();
-let syncing = false, pending = false, syncTimer = null;
-let currentCheckinChild = null;
-const $syncBadge = document.getElementById('syncBadge');
-
-// ========== 동기화 ==========
-function scheduleSync() { clearTimeout(syncTimer); syncTimer = setTimeout(pushState, 400); }
-async function pushState() {
-  if (syncing) { pending = true; return; }
-  syncing = true;
-  try {
-    const res = await fetch(SYNC_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ list: LIST_ID, items: data }) });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const serverData = await res.json();
-    if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); renderAll(); }
-    $syncBadge.textContent = '🟢 온라인 · 동기화됨'; $syncBadge.className = 'sync-badge online';
-    console.log('[Sync] pushState success');
-  } catch (e) {
-    console.error('[Sync] pushState failed:', e);
-    $syncBadge.textContent = '⚪ 오프라인 · 로컬 저장 중'; $syncBadge.className = 'sync-badge offline';
-  } finally { syncing = false; if (pending) { pending = false; pushState(); } }
-}
-async function pullState() {
-  try {
-    const res = await fetch(SYNC_API + '?list=' + encodeURIComponent(LIST_ID) + '&_=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const serverData = await res.json();
-    if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); renderAll(); }
-    $syncBadge.textContent = '🟢 온라인 · 동기화됨'; $syncBadge.className = 'sync-badge online';
-    console.log('[Sync] pullState success');
-  } catch (e) {
-    console.error('[Sync] pullState failed:', e);
-    $syncBadge.textContent = '⚪ 오프라인 · 로컬 저장 중'; $syncBadge.className = 'sync-badge offline';
-  }
-}
-function mergeData(local, remote) {
-  // Simple merge: for dinner, merge each field (local wins for new data, remote for existing)
-  const merged = JSON.parse(JSON.stringify(local));
-  if (remote.dinner) {
-    // Merge dinner fields: keep local if it has newer data, otherwise use remote
-    const ld = merged.dinner || {};
-    const rd = remote.dinner;
-    merged.dinner = {
-      today: rd.today || ld.today || { date: '', menu: '', time: '', place: '' },
-      checkin: rd.checkin || ld.checkin || { minwoo: '', minjun: '' },
-      requests: [...(ld.requests || []), ...(rd.requests || [])].filter((req, i, arr) => 
-        arr.findIndex(r => r.t === req.t) === i
-      ),
-      history: [...(ld.history || []), ...(rd.history || [])].filter((h, i, arr) => 
-        arr.findIndex(x => x.date === h.date && x.menu === h.menu) === i
-      )
+function today(){return new Date().toISOString().slice(0,10)}
+function day(d){return ['일','월','화','수','목','금','토'][new Date(d).getDay()]}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',place:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[]}return data}catch(e){return data}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}push()}
+async function push(){try{await fetch(SYNC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({list:LIST,items:data})});$sync.textContent='🟢 온라인 · 동기화됨';$sync.className='sync on'}catch(e){$sync.textContent='⚪ 오프라인 · 로컬 저장 중';$sync.className='sync off'}}
+async function pull(){try{const r=await fetch(SYNC+'?list='+LIST+'&_='+Date.now(),{cache:'no-store'});if(r.ok){const j=await r.json();if(j.items){data=merge(data,j.items);localStorage.setItem(KEY,JSON.stringify(data));render()}$sync.textContent='🟢 온라인 · 동기화됨';$sync.className='sync on'}catch(e){$sync.textContent='⚪ 오프라인 · 로컬 저장 중';$sync.className='sync off'}}
+function merge(local,remote){
+  const m=JSON.parse(JSON.stringify(local));
+  if(remote.dinner){
+    const ld=m.dinner, rd=remote.dinner;
+    m.dinner={
+      today:ld.today||rd.today||{date:'',menu:'',time:'',place:''},
+      checkin:rd.checkin||ld.checkin||{minwoo:'',minjun:''},
+      memos:[...(ld.memos||[]),...(rd.memos||[])].filter((x,i,a)=>a.findIndex(y=>y.t===x.t)===i),
+      history:[...(ld.history||[]),...(rd.history||[])].filter((x,i,a)=>a.findIndex(y=>y.date===x.date&&y.menu===x.menu)===i)
     };
   }
-  // Ensure dinner structure is complete
-  if (!merged.dinner) merged.dinner = getDefaultData().dinner;
-  if (!merged.dinner.today) merged.dinner.today = { date: '', menu: '', time: '', place: '' };
-  if (!merged.dinner.checkin) merged.dinner.checkin = { minwoo: '', minjun: '' };
-  if (!merged.dinner.requests) merged.dinner.requests = [];
-  if (!merged.dinner.history) merged.dinner.history = [];
-  return merged;
+  return m;
 }
-setInterval(pullState, 5000);
-window.addEventListener('focus', pullState);
-pullState();
+setInterval(pull,5000);window.addEventListener('focus',pull);data=load();pull();render();
 
-// ========== 렌더링 ==========
-function renderAll() {
-  renderDinner();
-  renderRequests();
-  renderMeals();
+function render(){
+  const d=data.dinner, td=today();
+  if(d.today.date!==td){d.today={date:td,menu:'',time:'',place:''};d.checkin={minwoo:'',minjun:''};save()}
+  document.getElementById('dinnerMenu').innerHTML=d.today.menu?'<b>'+d.today.menu+'</b>':'아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small>';
+  const $m=document.getElementById('dinnerMeta'),$t=document.getElementById('dinnerTime'),$p=document.getElementById('dinnerPlace');
+  if(d.today.menu){$m.style.display='flex';$t.textContent=d.today.time?'⏰ '+d.today.time+' 예정':'⏰ 시간 미정';$p.textContent=d.today.place?'📍 '+d.today.place:'📍 장소 미정'}else{$m.style.display='none'}
+  ['minwoo','minjun'].forEach(k=>{const b=document.querySelector('.checkin-btn.'+k);if(!b)return;b.classList.toggle('on',!!d.checkin[k]);b.innerHTML=(k==='minwoo'?'민우':'민준')+'<br><small>'+(d.checkin[k]||'확인 안 함')+'</small>';});
+  renderMemos();
 }
-
-function renderDinner() {
-  const d = data.dinner;
-  const today = todayStr();
-  if (!d.today || d.today.date !== today) {
-    d.today = { date: today, menu: '', time: '', place: '' };
-    d.checkin = { minwoo: '', minjun: '' };
-    if (!d.requests) d.requests = [];
-    if (!d.history) d.history = [];
-    saveData(data);
-  }
-  document.getElementById('dinnerDate').textContent = today + ' (' + dayName(today) + ')';
-  const $menu = document.getElementById('dinnerMenu');
-  const $meta = document.getElementById('dinnerMeta');
-  const $time = document.getElementById('dinnerTime');
-  const $place = document.getElementById('dinnerPlace');
-  if (d.today.menu) {
-    $menu.innerHTML = '<b>' + d.today.menu + '</b>';
-    $meta.style.display = 'block';
-    $time.textContent = d.today.time ? '⏰ ' + d.today.time + ' 예정' : '⏰ 시간 미정';
-    $place.textContent = d.today.place ? '📍 ' + d.today.place : '📍 장소 미정';
-  } else {
-    $menu.innerHTML = '<div class="dinner-empty">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>';
-    $meta.style.display = 'none';
-  }
-  // Checkin buttons
-  ['minwoo', 'minjun'].forEach(k => {
-    const btn = document.querySelector('.checkin-btn.' + k);
-    if (!btn) return;
-    const val = d.checkin[k] || '';
-    btn.classList.toggle('active', !!val);
-    btn.innerHTML = (k === 'minwoo' ? '민우' : '민준') + '<br><small>' + (val || '확인 안 함') + '</small>';
-  });
-}
-
-function toggleCheckin(child) {
-  currentCheckinChild = child;
-  document.getElementById('statusOptions').style.display = 'grid';
-  // Scroll to options
-  document.getElementById('statusOptions').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-function setCheckinStatus(status) {
-  if (!currentCheckinChild) return;
-  data.dinner.checkin[currentCheckinChild] = status;
-  saveData(data); renderDinner();
-  document.getElementById('statusOptions').style.display = 'none';
-  currentCheckinChild = null;
-}
-
-function renderRequests() {
-  const $list = document.getElementById('requestList');
-  $list.innerHTML = data.dinner.requests.map((r, i) => `
-    <div class="request-item ${r.child} ${r.done ? 'done' : ''}" onclick="toggleRequestDone(${i})">
-      <div class="request-top">
-        <span class="request-name ${r.child}">${r.child === 'minwoo' ? '👦 민우' : '👦 민준'}</span>
-        <span class="request-time">${r.time}</span>
-      </div>
-      <div class="request-text">${r.text}</div>
-    </div>
-  `).join('') || '<div style="text-align:center;color:var(--text-secondary);padding:16px;font-size:13px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';
-}
-function addRequest() {
-  const child = document.getElementById('reqChild').value;
-  const text = document.getElementById('reqText').value.trim();
-  if (!text) return alert('내용을 입력하세요');
-  data.dinner.requests.unshift({ child, text, done: false, time: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }), t: Date.now() });
-  saveData(data); renderRequests(); document.getElementById('reqText').value = '';
-}
-function toggleRequestDone(i) { data.dinner.requests[i].done = !data.dinner.requests[i].done; saveData(data); renderRequests(); }
-
-function renderMeals() {
-  const $list = document.getElementById('mealList');
-  const today = todayStr();
-  const weekMeals = data.mealplan.filter(m => new Date(m.date) >= new Date(today) && new Date(m.date) < new Date(Date.now() + 7*86400000));
-  if (weekMeals.length === 0) {
-    $list.innerHTML = '<div style="text-align:center;color:var(--text-secondary);padding:16px">이번 주 식단이 아직 없어요</div>';
-    return;
-  }
-  const byDate = {};
-  weekMeals.forEach(m => { if (!byDate[m.date]) byDate[m.date] = []; byDate[m.date].push(m); });
-  const dates = Object.keys(byDate).sort();
-  $list.innerHTML = dates.map(date => `
-    <div class="meal-card">
-      <div class="meal-day ${date === today ? 'today' : ''}">${date} (${dayName(date)})${date === today ? ' <span style="font-size:11px;background:var(--accent);color:#fff;padding:1px 6px;border-radius:999px">오늘</span>' : ''}</div>
-      ${byDate[date].map(m => `
-        <div class="meal-item">${m.type} · ${m.name}<small>${m.ingredients}</small></div>
-      `).join('')}
-    </div>
-  `).join('');
-}
-
-// ========== PIN Modal ==========
-function openPinModal() { document.getElementById('pinModal').classList.add('show'); document.querySelector('.pin-input input').focus(); }
-function closePinModal() { document.getElementById('pinModal').classList.remove('show'); document.getElementById('pinError').classList.remove('show'); document.querySelectorAll('.pin-input input').forEach(i => i.value = ''); }
-function verifyPin() {
-  const pin = Array.from(document.querySelectorAll('.pin-input input')).map(i => i.value).join('');
-  if (pin === PARENT_PIN) {
-    closePinModal();
-    window.location.href = 'budget.html';
-  } else {
-    document.getElementById('pinError').classList.add('show');
-    document.querySelectorAll('.pin-input input').forEach(i => i.value = '');
-    document.querySelector('.pin-input input').focus();
-  }
-}
-// Auto-focus next pin input
-document.querySelectorAll('.pin-input input').forEach((input, idx, arr) => {
-  input.addEventListener('input', () => { if (input.value && idx < arr.length - 1) arr[idx + 1].focus(); });
-  input.addEventListener('keydown', e => { if (e.key === 'Backspace' && !input.value && idx > 0) arr[idx - 1].focus(); });
-});
-
-// Parent link click -> PIN modal
-document.querySelector('.parent-link').addEventListener('click', e => {
-  e.preventDefault();
-  openPinModal();
-});
-
-// Initial render
-renderAll();
+let cur=null;
+function toggleCheckin(c){cur=c;document.getElementById('statusBtns').style.display='grid';document.getElementById('statusBtns').scrollIntoView({behavior:'smooth',block:'nearest'})}
+function setCheckin(s){if(!cur)return;data.dinner.checkin[cur]=s;save();render();document.getElementById('statusBtns').style.display='none';cur=null}
+function renderMemos(){const $l=document.getElementById('memoList');$l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';}
+function addMemo(){const c=document.getElementById('memoChild').value,t=document.getElementById('memoText').value.trim();if(!t)return alert('내용을 입력하세요');data.dinner.memos.unshift({child:c,text:t,done:false,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),t:Date.now()});save();renderMemos();document.getElementById('memoText').value='';}
+function toggleMemo(i){data.dinner.memos[i].done=!data.dinner.memos[i].done;save();renderMemos();}
+render();
 </script>
 </body>
 </html>

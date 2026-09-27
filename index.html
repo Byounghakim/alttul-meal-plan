@@ -31,6 +31,7 @@ header .parent-link{position:absolute;right:0;top:50%;transform:translateY(-50%)
 .dinner-menu{font-size:16px;line-height:1.7;padding:12px;background:#faf9f6;border-radius:10px;margin-bottom:12px}
 .dinner-menu b{color:var(--text)}
 .dinner-meta{display:flex;gap:12px;font-size:13px;color:var(--text2);flex-wrap:wrap;margin-bottom:16px}
+.dinner-photo{width:100%;border-radius:10px;margin-top:12px;display:none}
 .checkin-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .checkin-btn{padding:16px 12px;border-radius:12px;border:2px solid var(--border);background:#fff;font:inherit;font-size:14px;font-weight:700;cursor:pointer;min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .15s}
 .checkin-btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08)}
@@ -44,6 +45,21 @@ header .parent-link{position:absolute;right:0;top:50%;transform:translateY(-50%)
 .status-btn.home{border-color:var(--ok);color:var(--ok)}
 .status-btn.out{border-color:var(--minjun);color:var(--minjun)}
 .status-btn.skip{border-color:var(--danger);color:var(--danger);background:var(--dangerL)}
+.checkin-opt{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:12px;cursor:pointer;transition:all .15s}
+.checkin-opt:has(input:checked){border-color:var(--accent)!important;background:var(--accentL)!important;box-shadow:0 0 0 3px var(--accentL);}
+.checkin-opt:active{transform:scale(0.98);}
+.checkin-opt input[type="checkbox"]{width:20px;height:20px;accent-color:var(--accent);flex-shrink:0}
+.checkin-opt input[type="time"]{padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto}
+.checkin-opt input[type="time"]:focus{outline:none;border-color:var(--accent)}
+.checkin-opt span{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap}
+.checkin-status{margin-top:10px;padding:10px;border-radius:8px;text-align:center;font-weight:700;font-size:13px;display:none}
+.checkin-status.minwoo{background:#f0fdf4;color:var(--ok)}
+.checkin-status.minjun{background:#fef3c7;color:var(--warn)}
+.photo-upload{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.photo-upload input[type="file"]{display:none}
+.photo-upload label{flex:1;padding:12px;border:2px dashed var(--border);border-radius:10px;text-align:center;cursor:pointer;color:var(--text2);font-size:14px;transition:all .15s}
+.photo-upload label:hover{border-color:var(--accent);color:var(--accent);background:var(--accentL)}
+.photo-preview{width:100%;border-radius:10px;margin-top:12px;display:none}
 .memo-row{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .memo-row select,.memo-row input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px}
 .memo-row button{width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
@@ -81,58 +97,61 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       <span id="dinnerTime"></span>
       <span id="dinnerPlace"></span>
     </div>
-  </section>
+    <img id="dinnerPhoto" class="dinner-photo" alt="저녁 사진">
 
   <section class="card">
     <h2>👨‍👦 오늘 저녁 어떻게 먹니?</h2>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="border:2px solid var(--minwoo);border-radius:16px;padding:14px;background:linear-gradient(135deg,var(--minwooL) 0%,#fff 100%)">
-        <div style="font-weight:800;color:var(--minwoo);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:6px">👦 민우</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label class="checkin-opt" data-child="minwoo" data-value="집에서 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:18px;height:18px;accent-color:var(--minwoo);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div style="border:2px solid var(--minwoo);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minwooL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minwoo);font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:6px">👦 민우</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label class="checkin-opt" data-child="minwoo" data-value="집에서 먹음">
+            <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:20px;height:20px;accent-color:var(--minwoo);flex-shrink:0">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+            <input type="time" name="cin_minwoo_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto;display:none" onchange="setCheckinTime('minwoo',this.value)">
           </label>
-          <label class="checkin-opt" data-child="minwoo" data-value="외식" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')" style="width:18px;height:18px;accent-color:var(--minjun);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
+          <label class="checkin-opt" data-child="minwoo" data-value="외식">
+            <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
           </label>
-          <label class="checkin-opt" data-child="minwoo" data-value="안 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_skip" value="안 먹음" onchange="setCheckin('minwoo','안 먹음')" style="width:18px;height:18px;accent-color:var(--danger);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
+          <label class="checkin-opt" data-child="minwoo" data-value="안 먹음">
+            <input type="checkbox" name="cin_minwoo_skip" value="안 먹음" onchange="setCheckin('minwoo','안 먹음')">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
           </label>
         </div>
-        <div id="cinMinwooStatus" style="margin-top:8px;padding:6px 10px;background:#f0fdf4;border-radius:8px;text-align:center;font-weight:700;color:var(--ok);font-size:12px;display:none"></div>
+        <div id="cinMinwooStatus" class="checkin-status minwoo"></div>
+        <div class="photo-upload" id="minwooPhotoUpload" style="display:none">
+          <input type="file" id="minwooPhotoInput" accept="image/*" onchange="uploadPhoto('minwoo',this)" style="display:none">
+          <label for="minwooPhotoInput">📷 사진 올리기</label>
+        </div>
+        <div id="cinMinwooStatus" class="checkin-status minwoo"></div>
       </div>
 
-      <div style="border:2px solid var(--minjun);border-radius:16px;padding:14px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
-        <div style="font-weight:800;color:var(--minjun);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:6px">👦 민준</div>
-        <div style="display:flex;flex-direction:column;gap:6px">
-          <label class="checkin-opt" data-child="minjun" data-value="집에서 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')" style="width:18px;height:18px;accent-color:var(--minwoo);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+      <div style="border:2px solid var(--minjun);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minjun);font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:6px">👦 민준</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label class="checkin-opt" data-child="minjun" data-value="집에서 먹음">
+            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+            <input type="time" name="cin_minjun_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto;display:none" onchange="setCheckinTime('minjun',this.value)">
           </label>
-          <label class="checkin-opt" data-child="minjun" data-value="외식" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')" style="width:18px;height:18px;accent-color:var(--minjun);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
+          <label class="checkin-opt" data-child="minjun" data-value="외식">
+            <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
           </label>
-          <label class="checkin-opt" data-child="minjun" data-value="안 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_skip" value="안 먹음" onchange="setCheckin('minjun','안 먹음')" style="width:18px;height:18px;accent-color:var(--danger);flex-shrink:0">
-            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
+          <label class="checkin-opt" data-child="minjun" data-value="안 먹음">
+            <input type="checkbox" name="cin_minjun_skip" value="안 먹음" onchange="setCheckin('minjun','안 먹음')">
+            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
           </label>
         </div>
-        <div id="cinMinjunStatus" style="margin-top:8px;padding:6px 10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:700;color:var(--warn);font-size:12px;display:none"></div>
+        <div id="cinMinjunStatus" class="checkin-status minjun"></div>
+        <div class="photo-upload" id="minjunPhotoUpload" style="display:none">
+          <input type="file" id="minjunPhotoInput" accept="image/*" onchange="uploadPhoto('minjun',this)" style="display:none">
+          <label for="minjunPhotoInput">📷 사진 올리기</label>
+        </div>
+        <div id="cinMinjunStatus" class="checkin-status minjun"></div>
       </div>
     </div>
-    <style>
-      .checkin-opt:has(input:checked){border-color:var(--accent)!important;background:var(--accentL)!important;box-shadow:0 0 0 3px var(--accentL);}
-      .checkin-opt:active{transform:scale(0.98);}
-      @media (max-width:380px){
-        .checkin-opt span{font-size:14px;}
-        .checkin-opt{padding:10px 12px;}
-      }
-    </style>
-  </section>
 
   <section class="card">
     <h2>📝 준비물·부탁할 거</h2>
@@ -154,12 +173,12 @@ const KEY='alttul-family-2026';
 const SYNC='https://macbook-pro-54.tail1e8f41.ts.net/api/state';
 const LIST='family-2026';
 const $sync=document.getElementById('syncBadge');
-let data={dinner:{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]}};
+let data={dinner:{today:{date:'',menu:'',time:'',timeMinjun:'',place:'',photo:''},checkin:{minwoo:'',minjun:''},checkinTime:{minwoo:'',minjun:''},checkinPhoto:{minwoo:'',minjun:''},memos:[],history:[]}};
 let curChild=null;
 
 function today(){return new Date().toISOString().slice(0,10)}
 function day(d){return ['일','월','화','수','목','금','토'][new Date(d).getDay()]}
-function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',place:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[]}return data}catch(e){return data}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',place:'',photo:''},checkin:{minwoo:'',minjun:''},checkinTime:{minwoo:'',minjun:''},checkinPhoto:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',place:'',photo:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.checkinTime=data.dinner.checkinTime||{minwoo:'',minjun:''};data.dinner.checkinPhoto=data.dinner.checkinPhoto||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[]}return data}catch(e){return data}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}push()}
 async function push(){
   try{
@@ -190,8 +209,10 @@ function merge(local,remote){
   if(remote.dinner){
     const ld=m.dinner, rd=remote.dinner;
     m.dinner={
-      today:ld.today||rd.today||{date:'',menu:'',time:'',place:''},
+      today:ld.today||rd.today||{date:'',menu:'',time:'',timeMinjun:'',place:'',photo:''},
       checkin:rd.checkin||ld.checkin||{minwoo:'',minjun:''},
+      checkinTime:rd.checkinTime||ld.checkinTime||{minwoo:'',minjun:''},
+      checkinPhoto:rd.checkinPhoto||ld.checkinPhoto||{minwoo:'',minjun:''},
       memos:[...(ld.memos||[]),...(rd.memos||[])].filter((x,i,a)=>a.findIndex(y=>y.t===x.t)===i),
       history:[...(ld.history||[]),...(rd.history||[])].filter((x,i,a)=>a.findIndex(y=>y.date===x.date&&y.menu===x.menu)===i)
     };
@@ -202,32 +223,82 @@ setInterval(pull,5000);window.addEventListener('focus',pull);data=load();pull();
 
 function render(){
   const d=data.dinner, td=today();
-  if(d.today.date!==td){d.today={date:td,menu:'',time:'',place:''};d.checkin={minwoo:'',minjun:''};save()}
+  if(d.today.date!==td){d.today={date:td,menu:'',time:'',place:'',photo:''};d.checkin={minwoo:'',minjun:''};d.checkinTime={minwoo:'',minjun:''};d.checkinPhoto={minwoo:'',minjun:''};save()}
   document.getElementById('dinnerMenu').innerHTML=d.today.menu?'<b>'+d.today.menu+'</b>':'아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small>';
-  const $m=document.getElementById('dinnerMeta'),$t=document.getElementById('dinnerTime'),$p=document.getElementById('dinnerPlace');
-  if(d.today.menu){$m.style.display='flex';$t.textContent=d.today.time?'⏰ '+d.today.time+' 예정':'⏰ 시간 미정';$p.textContent=d.today.place?'📍 '+d.today.place:'📍 장소 미정'}else{$m.style.display='none'}
+  const $m=document.getElementById('dinnerMeta'),$t=document.getElementById('dinnerTime'),$p=document.getElementById('dinnerPlace'),$ph=document.getElementById('dinnerPhoto');
+  if(d.today.menu){
+    $m.style.display='flex';
+    const times = [];
+    if(d.checkinTime.minwoo) times.push('👦 민우 '+d.checkinTime.minwoo);
+    if(d.checkinTime.minjun) times.push('👦 민준 '+d.checkinTime.minjun);
+    $t.textContent=times.length?times.join(' / '):'⏰ 시간 미정';
+    $p.textContent=d.today.place?'📍 '+d.today.place:'📍 장소 미정';
+    if(d.today.photo){
+      $ph.src=d.today.photo;
+      $ph.style.display='block';
+    }else{$ph.style.display='none'}
+    $m.style.display='flex';
+  }else{$m.style.display='none';$ph.style.display='none'}
   ['minwoo','minjun'].forEach(k=>{
     const val = d.checkin[k] || '';
+    const isHome = val === '집에서 먹음';
     ['home','out','skip'].forEach(opt=>{
       const el = document.querySelector(`input[name="cin_${k}_${opt}"]`);
       if (el) el.checked = (val === el.value);
     });
+    const timeEl = document.querySelector(`input[name="cin_${k}_time"]`);
+    if(timeEl){
+      timeEl.style.display = isHome ? 'inline-block' : 'none';
+      if(isHome && d.checkinTime[k]) timeEl.value = d.checkinTime[k];
+    }
+    const $photoUpload = document.getElementById(k+'PhotoUpload');
+    if($photoUpload) $photoUpload.style.display = isHome ? 'flex' : 'none';
     const $s = document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)+'Status');
     if ($s) {
-      if (val) { $s.textContent = val; $s.style.display = 'block'; }
+      if (val) { $s.textContent = val + (d.checkinTime[k] ? ' · '+d.checkinTime[k] : ''); $s.style.display = 'block'; }
       else { $s.style.display = 'none'; }
+    }
+    if(isHome){
+      document.getElementById(k+'PhotoUpload').style.display = 'flex';
+    }else{
+      document.getElementById(k+'PhotoUpload').style.display = 'none';
     }
   });
   renderMemos();
 }
 function setCheckin(child, value) {
-  // Uncheck other checkboxes for this child
-  ['home','out','skip'].forEach(k => {
-    const el = document.querySelector(`input[name="cin_${child}_${k}"]`);
-    if (el && el.value !== value) el.checked = false;
-  });
+  const isHome = value === '집에서 먹음';
+  const timeEl = document.querySelector(`input[name="cin_${child}_time"]`);
+  const photoUpload = document.getElementById(child+'PhotoUpload');
+  if(timeEl) timeEl.style.display = value === '집에서 먹음' ? 'inline-block' : 'none';
+  if(photoUpload) photoUpload.style.display = value === '집에서 먹음' ? 'flex' : 'none';
   data.dinner.checkin[child] = value;
+  if(isHome && !data.dinner.checkinTime[child]){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(Math.ceil(now.getMinutes()/30)*30%60).padStart(2,'0');
+    data.dinner.checkinTime[child] = `${String(now.getHours()).padStart(2,'0')}:${String(Math.ceil(now.getMinutes()/30)*30%60).padStart(2,'0')}`;
+  }
   save(); render();
+}
+
+function setCheckinTime(child, time) {
+  data.dinner.checkinTime[child] = time;
+  save(); render();
+}
+
+function uploadPhoto(child, input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) return alert('이미지 파일만 가능합니다');
+  if(file.size > 5*1024*1024) return alert('5MB 이하만 가능합니다');
+  const reader = new FileReader();
+  reader.onload = e => {
+    data.dinner.checkinPhoto[child] = e.target.result;
+    data.dinner.today.photo = e.target.result;
+    save(); render();
+  };
+  reader.readAsDataURL(file);
 }
 function renderMemos(){const $l=document.getElementById('memoList');$l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';}
 function addMemo(){const c=document.getElementById('memoChild').value,t=document.getElementById('memoText').value.trim();if(!t)return alert('내용을 입력하세요');data.dinner.memos.unshift({child:c,text:t,done:false,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),t:Date.now()});save();renderMemos();document.getElementById('memoText').value='';}

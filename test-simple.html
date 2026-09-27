@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Test</title>
+</head>
+<body>
+<h1>Test Page</h1>
+<button onclick="testAsync()">Test Async</button>
+<script>
+const SYNC='https://macbook-pro-54.tail1e8f41.ts.net/api/state';
+const LIST='family-2026';
+
+async function push(){
+  try{
+    await fetch(SYNC,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({list:LIST,items:{}})});
+    console.log('push ok');
+  }catch(e){
+    console.log('push error',e);
+  }
+}
+
+async function pull(){
+  try{
+    const r=await fetch(SYNC+'?list='+LIST+'&_='+Date.now(),{cache:'no-store'});
+    if(r.ok){
+      console.log('pull ok');
+    }
+  }catch(e){
+    console.log('pull error',e);
+  }
+}
+
+function testAsync(){
+  push();
+  pull();
+  console.log('test done');
+}
+</script>
+</body>
+</html>

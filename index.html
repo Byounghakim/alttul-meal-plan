@@ -108,8 +108,10 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
           <label class="checkin-opt" data-child="minwoo" data-value="집에서 먹음">
             <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:20px;height:20px;accent-color:var(--minwoo);flex-shrink:0">
             <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
-            <input type="time" name="cin_minwoo_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto;display:none" onchange="setCheckinTime('minwoo',this.value)">
           </label>
+          <div id="minwooTimeWrapper" style="display:none;margin-left:28px;margin-top:-4px;margin-bottom:4px">
+            <input type="time" name="cin_minwoo_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto" onchange="setCheckinTime('minwoo',this.value)">
+          </div>
           <label class="checkin-opt" data-child="minwoo" data-value="외식">
             <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')">
             <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
@@ -130,11 +132,13 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       <div style="border:2px solid var(--minjun);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
         <div style="font-weight:800;color:var(--minjun);font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:6px">👦 민준</div>
         <div style="display:flex;flex-direction:column;gap:8px">
-          <label class="checkin-opt" data-child="minjun" data-value="집에서 먹음">
-            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')">
+<label class="checkin-opt" data-child="minjun" data-value="집에서 먹음">
+            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')" style="width:20px;height:20px;accent-color:var(--minwoo);flex-shrink:0">
             <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
-            <input type="time" name="cin_minjun_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto;display:none" onchange="setCheckinTime('minjun',this.value)">
           </label>
+          <div id="minjunTimeWrapper" style="display:none;margin-left:28px;margin-top:-4px;margin-bottom:4px">
+            <input type="time" name="cin_minjun_time" step="1800" min="16:00" max="24:00" value="" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:14px;background:#fff;color:var(--text);width:auto" onchange="setCheckinTime('minjun',this.value)">
+          </div>
           <label class="checkin-opt" data-child="minjun" data-value="외식">
             <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')">
             <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>

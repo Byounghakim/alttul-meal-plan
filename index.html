@@ -194,12 +194,12 @@
     <div class="request-header">
       <div class="request-title">📝 준비물·부탁할 거</div>
     </div>
-    <div class="input-row" style="display:flex;gap:8px;margin-bottom:10px">
-      <select id="reqChild" style="flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px">
+    <div class="input-row" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px">
+      <select id="reqChild" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;width:100%">
         <option value="minwoo">👦 민우</option>
         <option value="minjun">👦 민준</option>
       </select>
-      <input type="text" id="reqText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)" style="flex:3;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px">
+      <input type="text" id="reqText" placeholder="내용 (예: 내일 체육복, 용돈 5천원)" style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;width:100%;box-sizing:border-box">
     </div>
     <button class="btn" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer" onclick="addRequest()">등록하기</button>
     <div id="requestList" style="margin-top:12px"></div>
@@ -300,7 +300,9 @@ async function pushState() {
     const serverData = await res.json();
     if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); renderAll(); }
     $syncBadge.textContent = '🟢 온라인 · 동기화됨'; $syncBadge.className = 'sync-badge online';
+    console.log('[Sync] pushState success');
   } catch (e) {
+    console.error('[Sync] pushState failed:', e);
     $syncBadge.textContent = '⚪ 오프라인 · 로컬 저장 중'; $syncBadge.className = 'sync-badge offline';
   } finally { syncing = false; if (pending) { pending = false; pushState(); } }
 }
@@ -311,7 +313,9 @@ async function pullState() {
     const serverData = await res.json();
     if (serverData.items) { data = mergeData(data, serverData.items); saveData(data); renderAll(); }
     $syncBadge.textContent = '🟢 온라인 · 동기화됨'; $syncBadge.className = 'sync-badge online';
+    console.log('[Sync] pullState success');
   } catch (e) {
+    console.error('[Sync] pullState failed:', e);
     $syncBadge.textContent = '⚪ 오프라인 · 로컬 저장 중'; $syncBadge.className = 'sync-badge offline';
   }
 }

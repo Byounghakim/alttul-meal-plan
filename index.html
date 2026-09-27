@@ -320,9 +320,23 @@ async function pullState() {
   }
 }
 function mergeData(local, remote) {
-  // Simple merge: remote wins for dinner/checkin/requests, local wins for budget/inventory/mealplan (parent data)
+  // Simple merge: for dinner, merge each field (local wins for new data, remote for existing)
   const merged = JSON.parse(JSON.stringify(local));
-  if (remote.dinner) merged.dinner = remote.dinner;
+  if (remote.dinner) {
+    // Merge dinner fields: keep local if it has newer data, otherwise use remote
+    const ld = merged.dinner || {};
+    const rd = remote.dinner;
+    merged.dinner = {
+      today: rd.today || ld.today || { date: '', menu: '', time: '', place: '' },
+      checkin: rd.checkin || ld.checkin || { minwoo: '', minjun: '' },
+      requests: [...(ld.requests || []), ...(rd.requests || [])].filter((req, i, arr) => 
+        arr.findIndex(r => r.t === req.t) === i
+      ),
+      history: [...(ld.history || []), ...(rd.history || [])].filter((h, i, arr) => 
+        arr.findIndex(x => x.date === h.date && x.menu === h.menu) === i
+      )
+    };
+  }
   // Ensure dinner structure is complete
   if (!merged.dinner) merged.dinner = getDefaultData().dinner;
   if (!merged.dinner.today) merged.dinner.today = { date: '', menu: '', time: '', place: '' };

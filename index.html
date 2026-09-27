@@ -253,7 +253,17 @@ const PARENT_PIN = '0315'; // 가족 생일 4자리 - 박사님 변경 가능
 function loadData() {
   try {
     const v = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    return v || getDefaultData();
+    if (!v) return getDefaultData();
+    // 구버전 데이터 호환: dinner 누락 시 기본값 보완
+    if (!v.dinner) v.dinner = getDefaultData().dinner;
+    if (!v.dinner.today) v.dinner.today = { date: '', menu: '', time: '', place: '' };
+    if (!v.dinner.checkin) v.dinner.checkin = { minwoo: '', minjun: '' };
+    if (!v.dinner.requests) v.dinner.requests = [];
+    if (!v.dinner.history) v.dinner.history = [];
+    if (!v.budget) v.budget = getDefaultData().budget;
+    if (!v.inventory) v.inventory = [];
+    if (!v.mealplan) v.mealplan = [];
+    return v;
   } catch (e) { return getDefaultData(); }
 }
 function saveData(d) {
@@ -307,10 +317,14 @@ async function pullState() {
 }
 function mergeData(local, remote) {
   // Simple merge: remote wins for dinner/checkin/requests, local wins for budget/inventory/mealplan (parent data)
-  const merged = JSON.parse(JSON.stringify(remote));
-  merged.budget = local.budget;
-  merged.inventory = local.inventory;
-  merged.mealplan = local.mealplan;
+  const merged = JSON.parse(JSON.stringify(local));
+  if (remote.dinner) merged.dinner = remote.dinner;
+  // Ensure dinner structure is complete
+  if (!merged.dinner) merged.dinner = getDefaultData().dinner;
+  if (!merged.dinner.today) merged.dinner.today = { date: '', menu: '', time: '', place: '' };
+  if (!merged.dinner.checkin) merged.dinner.checkin = { minwoo: '', minjun: '' };
+  if (!merged.dinner.requests) merged.dinner.requests = [];
+  if (!merged.dinner.history) merged.dinner.history = [];
   return merged;
 }
 setInterval(pullState, 5000);

@@ -94,7 +94,7 @@ const KEY='alttul-family-2026';
 const SYNC='https://macbook-pro-54.tail1e8f41.ts.net/api/state';
 const LIST='family-2026';
 const $sync=document.getElementById('syncBadge');
-let data={dinner:{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]}};
+let data={dinner:{today:{date:'',menu:'',time:'',timeMinjun:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]}};
 
 function today(){return new Date().toISOString().slice(0,10)}
 function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',place:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[]}return data}catch(e){return data}}
@@ -128,7 +128,7 @@ function merge(local,remote){
   if(remote.dinner){
     const ld=m.dinner, rd=remote.dinner;
     m.dinner={
-      today:ld.today||rd.today||{date:'',menu:'',time:'',place:''},
+      today:ld.today||rd.today||{date:'',menu:'',time:'',timeMinjun:'',place:''},
       checkin:rd.checkin||ld.checkin||{minwoo:'',minjun:''},
       memos:[...(ld.memos||[]),...(rd.memos||[])].filter((x,i,a)=>a.findIndex(y=>y.t===x.t)===i),
       history:[...(ld.history||[]),...(rd.history||[])].filter((x,i,a)=>a.findIndex(y=>y.date===x.date&&y.menu===x.menu)===i)

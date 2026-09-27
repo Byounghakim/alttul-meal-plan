@@ -60,6 +60,24 @@ header .parent-link{position:absolute;right:0;top:50%;transform:translateY(-50%)
 .photo-upload label{flex:1;padding:12px;border:2px dashed var(--border);border-radius:10px;text-align:center;cursor:pointer;color:var(--text2);font-size:14px;transition:all .15s}
 .photo-upload label:hover{border-color:var(--accent);color:var(--accent);background:var(--accentL)}
 .photo-preview{width:100%;border-radius:10px;margin-top:12px;display:none}
+.dinner-photo{width:100%;border-radius:10px;margin-top:12px;display:none;cursor:pointer}
+.time-edit-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.time-edit-modal.show{display:flex}
+.time-edit-modal-content{background:var(--card);border-radius:16px;padding:24px;width:100%;max-width:360px}
+.time-edit-modal h3{margin-bottom:16px;font-size:18px;text-align:center}
+.time-edit-modal .time-options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+.time-edit-modal .time-btn{padding:12px;border:2px solid var(--border);border-radius:10px;background:#fff;font:inherit;font-size:14px;font-weight:600;cursor:pointer;transition:all .15s}
+.time-edit-modal .time-btn:hover{border-color:var(--accent);background:var(--accentL)}
+.time-edit-modal .time-btn.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.time-edit-modal .time-custom{display:flex;gap:8px;margin-bottom:16px}
+.time-edit-modal .time-custom input{flex:1;padding:12px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:16px}
+.time-edit-modal .time-btns{display:flex;gap:8px}
+.time-edit-modal .time-btns button{flex:1;padding:12px;border-radius:8px;border:1px solid var(--border);background:#fff;font:inherit;font-size:14px;font-weight:600;color:var(--text);cursor:pointer}
+.time-edit-modal .time-btns button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.photo-modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.9);z-index:1001;align-items:center;justify-content:center;padding:20px}
+.photo-modal.show{display:flex}
+.photo-modal img{max-width:90%;max-height:90%;border-radius:8px}
+.photo-modal .close-btn{position:absolute;top:20px;right:20px;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;border:none;font-size:24px;cursor:pointer}
 .memo-row{display:flex;flex-direction:column;gap:8px;margin-top:16px}
 .memo-row select,.memo-row input{padding:10px 12px;border:1px solid var(--border);border-radius:8px;font:inherit;font-size:13px}
 .memo-row button{width:100%;padding:10px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
@@ -94,10 +112,16 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       <div style="color:var(--text2);text-align:center;padding:20px">아직 저녁 메뉴가 정해지지 않았어요<br><small>부모님이 입력해주시면 여기에 보여요</small></div>
     </div>
     <div id="dinnerMeta" style="display:none" class="dinner-meta">
-      <span id="dinnerTime"></span>
+      <span id="dinnerTime" style="cursor:pointer" onclick="editDinnerTime()"></span>
       <span id="dinnerPlace"></span>
     </div>
-    <img id="dinnerPhoto" class="dinner-photo" alt="저녁 사진">
+    <div style="margin-top:12px">
+      <div class="photo-upload" style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="file" id="dinnerPhotoInput" accept="image/*" onchange="uploadDinnerPhoto(this)" style="display:none">
+        <label for="dinnerPhotoInput" style="flex:1;padding:12px;border:2px dashed var(--border);border-radius:10px;text-align:center;cursor:pointer;color:var(--text2);font-size:14px;transition:all .15s">📷 저녁 사진 올리기</label>
+      </div>
+    </div>
+    <img id="dinnerPhoto" class="dinner-photo" alt="저녁 사진" onclick="openPhotoModal(this.src)">
 
   <section class="card">
     <h2>👨‍👦 오늘 저녁 어떻게 먹니?</h2>
@@ -304,10 +328,107 @@ function uploadPhoto(child, input) {
   };
   reader.readAsDataURL(file);
 }
+function uploadDinnerPhoto(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) return alert('이미지 파일만 가능합니다');
+  if(file.size > 5*1024*1024) return alert('5MB 이하만 가능합니다');
+  const reader = new FileReader();
+  reader.onload = e => {
+    data.dinner.today.photo = e.target.result;
+    save(); render();
+  };
+  reader.readAsDataURL(file);
+}
+
+function openTimeEditModal() {
+  if(!data.dinner.today.menu) return;
+  document.getElementById('timeEditModal').classList.add('show');
+  renderTimeOptions();
+}
+function closeTimeEditModal() {
+  document.getElementById('timeEditModal').classList.remove('show');
+}
+function renderTimeOptions() {
+  const container = document.getElementById('timeOptions');
+  let html = '';
+  for(let h = 16; h <= 24; h++) {
+    for(let m = 0; m < 60; m += 30) {
+      if(h === 24 && m > 0) continue;
+      const hh = String(h).padStart(2,'0');
+      const mm = String(m).padStart(2,'0');
+      const timeStr = `${hh}:${mm}`;
+      const isCurrent = data.dinner.today.time === timeStr;
+      html += `<button class="time-btn${isCurrent ? ' selected' : ''}" onclick="selectTime('${timeStr}')">${timeStr}</button>`;
+    }
+  }
+  document.getElementById('timeOptions').innerHTML = html;
+  document.getElementById('customTime').value = data.dinner.today.time || '';
+}
+function selectTime(time) {
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  document.getElementById('customTime').value = time;
+}
+function saveTimeFromModal() {
+  const time = document.getElementById('customTime').value;
+  if(!time) return alert('시간을 선택하세요');
+  data.dinner.today.time = time;
+  closeTimeEditModal();
+  save(); render();
+}
+function closeTimeEditModal() {
+  document.getElementById('timeEditModal').classList.remove('show');
+}
+
+function openPhotoModal(src) {
+  if(!src) return;
+  document.getElementById('photoModalImg').src = src;
+  document.getElementById('photoModal').classList.add('show');
+}
+function closePhotoModal() {
+  document.getElementById('photoModal').classList.remove('show');
+  document.getElementById('photoModalImg').src = '';
+}
+function uploadDinnerPhoto(input) {
+  const file = input.files[0];
+  if(!file) return;
+  if(!file.type.startsWith('image/')) return alert('이미지 파일만 가능합니다');
+  if(file.size > 5*1024*1024) return alert('5MB 이하만 가능합니다');
+  const reader = new FileReader();
+  reader.onload = e => {
+    data.dinner.today.photo = e.target.result;
+    save(); render();
+  };
+  reader.readAsDataURL(file);
+}
+
 function renderMemos(){const $l=document.getElementById('memoList');$l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없어요. 위 버튼으로 알려주세요!</div>';}
 function addMemo(){const c=document.getElementById('memoChild').value,t=document.getElementById('memoText').value.trim();if(!t)return alert('내용을 입력하세요');data.dinner.memos.unshift({child:c,text:t,done:false,time:new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}),t:Date.now()});save();renderMemos();document.getElementById('memoText').value='';}
 function toggleMemo(i){data.dinner.memos[i].done=!data.dinner.memos[i].done;save();renderMemos();}
 render();
 </script>
+
+<!-- Time Edit Modal -->
+<div id="timeEditModal" class="time-edit-modal">
+  <div class="time-edit-modal-content">
+    <h3>🕐 저녁 시간 설정</h3>
+    <div class="time-options" id="timeOptions"></div>
+    <div class="time-custom">
+      <input type="time" id="customTime" step="1800" min="16:00" max="24:00">
+    </div>
+    <div class="time-btns">
+      <button class="btn" onclick="closeTimeEditModal()">취소</button>
+      <button class="btn primary" onclick="saveTimeFromModal()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo Modal -->
+<div id="photoModal" class="photo-modal">
+  <img id="photoModalImg" src="" alt="확대 사진">
+  <button class="close-btn" onclick="closePhotoModal()">&times;</button>
+</div>
+
 </body>
 </html>

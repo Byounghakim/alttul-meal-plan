@@ -509,9 +509,20 @@ async function pullState() {
   }
 }
 function mergeData(local, remote) {
-  // Parent data (budget/inventory/mealplan) keeps local, family data (dinner/checkin/requests) takes remote
+  // sync server returns full items object: {budget, inventory, mealplan, dinner}
+  // Parent data (budget/inventory/mealplan) keeps local, family data (dinner) takes remote
   const merged = JSON.parse(JSON.stringify(local));
-  merged.dinner = remote.dinner || merged.dinner;
+  if (remote.dinner) {
+    // Merge dinner fields: remote wins for checkin/requests/history, local wins for today (parent input)
+    const ld = merged.dinner || {};
+    const rd = remote.dinner;
+    merged.dinner = {
+      today: ld.today || rd.today || { date: '', menu: '', time: '', place: '' },
+      checkin: rd.checkin || ld.checkin || { minwoo: '', minjun: '' },
+      requests: rd.requests || ld.requests || [],
+      history: rd.history || ld.history || []
+    };
+  }
   return merged;
 }
 setInterval(pullState, 5000);

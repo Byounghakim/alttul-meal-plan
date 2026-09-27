@@ -247,7 +247,7 @@ function merge(local,remote){
   }
   return m;
 }
-setInterval(pull,5000);window.addEventListener('focus',pull);data=load();pull();render();
+setInterval(pull,5000);window.addEventListener('focus',pull);data=load();pull().then(render);
 
 function render(){
   const d=data.dinner, td=today();

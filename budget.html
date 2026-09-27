@@ -188,6 +188,7 @@
     <button class="active" data-tab="budget">📊 가계부</button>
     <button data-tab="inventory">🧊 재고</button>
     <button data-tab="mealplan">📅 식단관리</button>
+    <button data-tab="dinner">🍽️ 저녁 설정</button>
     <button data-tab="settings">⚙️ 설정</button>
   </nav>
 
@@ -338,7 +339,42 @@
     </div>
   </section>
 
-  <!-- ========== TAB 4: 설정 ========== -->
+  <!-- ========== TAB 4: 저녁 설정 ========== -->
+  <section class="section" id="tab-dinner">
+    <div class="section-title"><span class="emoji">🍽️</span>오늘 저녁 메뉴/시간/장소 설정 (가족 페이지에 표시됨)</div>
+
+    <div class="card">
+      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">✏️</span>오늘 저녁 입력</div></div>
+      <div class="input-row">
+        <input type="date" id="dinnerDate" value="2026-09-27">
+        <input type="text" id="dinnerMenu" placeholder="메뉴 (예: 제육볶음 + 밥 + 된장국)">
+      </div>
+      <div class="input-row">
+        <input type="time" id="dinnerTime" class="small">
+        <input type="text" id="dinnerPlace" placeholder="장소 (예: 집, 외식: 식당명)" class="small">
+      </div>
+      <div class="btn-group">
+        <button class="btn primary" onclick="saveDinner()">저장하고 가족 페이지에 반영</button>
+        <button class="btn" onclick="clearDinner()">오늘 저녁 비우기</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">👁️</span>미리보기 (가족 페이지에 이렇게 보임)</div></div>
+      <div id="dinnerPreview" style="padding:8px 0"></div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-header"><div class="section-title" style="margin:0"><span class="emoji">📜</span>저녁 이력 (최근 14일)</div></div>
+      <div id="dinnerHistory"></div>
+    </div>
+
+    <div class="notice">
+      <b>💡 사용법</b> 저녁 메뉴/시간/장소를 입력하고 저장하면 <b>가족 페이지(index.html)</b>에 바로 반영됩니다. 아이들은 메뉴만 보고 "집에서 먹음/외식/안 먹음" 체크인만 할 수 있습니다.
+    </div>
+  </section>
+
+  <!-- ========== TAB 5: 설정 ========== -->
   <section class="section" id="tab-settings">
     <div class="section-title"><span class="emoji">⚙️</span>설정</div>
 
@@ -487,6 +523,7 @@ function renderAll() {
   renderBudget();
   renderInventory();
   renderMealPlan();
+  renderDinner();
 }
 
 function renderBudget() {
@@ -665,6 +702,70 @@ function deleteMealDay(date) { if (!confirm('이날 식단 전체 삭제?')) ret
 
 // Initial render
 renderAll();
+
+// ========== 저녁 설정 ==========
+function renderDinner() {
+  const d = data.dinner;
+  const today = todayStr();
+  if (d.today.date !== today) { d.today = { date: today, menu: '', time: '', place: '' }; saveData(data); }
+  document.getElementById('dinnerDate').value = today;
+  document.getElementById('dinnerMenu').value = d.today.menu || '';
+  document.getElementById('dinnerTime').value = d.today.time || '';
+  document.getElementById('dinnerPlace').value = d.today.place || '';
+
+  // Preview
+  const $prev = document.getElementById('dinnerPreview');
+  if (d.today.menu) {
+    $prev.innerHTML = `
+      <div style="background:#faf9f6;padding:16px;border-radius:10px;border:1px solid var(--border)">
+        <div style="font-size:16px;font-weight:700;margin-bottom:8px">${d.today.menu}</div>
+        <div style="display:flex;gap:16px;font-size:13px;color:var(--text-secondary);flex-wrap:wrap">
+          <span>⏰ ${d.today.time || '시간 미정'}</span>
+          <span>📍 ${d.today.place || '장소 미정'}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    $prev.innerHTML = '<div style="color:var(--text-secondary);text-align:center;padding:16px">아직 저녁 메뉴가 설정되지 않았습니다.</div>';
+  }
+
+  // History
+  const $hist = document.getElementById('dinnerHistory');
+  $hist.innerHTML = d.history.slice().reverse().slice(0, 14).map(h => `
+    <div class="expense-item">
+      <div class="expense-info">
+        <div class="expense-name">${h.date} (${dayName(h.date)}) · ${h.menu}</div>
+        <div class="expense-meta">${h.time} · ${h.place} · 민우:${h.checkin?.minwoo||'-'} / 민준:${h.checkin?.minjun||'-'}</div>
+      </div>
+    </div>
+  `).join('') || '<div style="padding:16px;text-align:center;color:var(--text-secondary)">이력 없음</div>';
+}
+
+function saveDinner() {
+  const date = document.getElementById('dinnerDate').value;
+  const menu = document.getElementById('dinnerMenu').value.trim();
+  const time = document.getElementById('dinnerTime').value;
+  const place = document.getElementById('dinnerPlace').value.trim();
+  if (!menu) return alert('메뉴를 입력하세요');
+  const today = todayStr();
+  // Save to today
+  data.dinner.today = { date, menu, time, place };
+  // Add to history (avoid duplicate)
+  const hist = data.dinner.history;
+  const existingIdx = hist.findIndex(h => h.date === date);
+  if (existingIdx >= 0) hist[existingIdx] = { date, menu, time, place, checkin: data.dinner.checkin };
+  else hist.unshift({ date, menu, time, place, checkin: data.dinner.checkin });
+  if (hist.length > 60) hist.length = 60;
+  saveData(data); renderDinner();
+  alert('저장 완료! 가족 페이지에 반영되었습니다.');
+}
+
+function clearDinner() {
+  if (!confirm('오늘 저녁 메뉴를 비우시겠습니까?')) return;
+  const today = todayStr();
+  data.dinner.today = { date: today, menu: '', time: '', place: '' };
+  saveData(data); renderDinner();
+}
 </script>
 </body>
 </html>

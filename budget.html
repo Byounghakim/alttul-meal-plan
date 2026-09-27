@@ -707,7 +707,7 @@ renderAll();
 function renderDinner() {
   const d = data.dinner;
   const today = todayStr();
-  if (d.today.date !== today) { d.today = { date: today, menu: '', time: '', place: '' }; saveData(data); }
+  if (!d.today || d.today.date !== today) { d.today = { date: today, menu: '', time: '', place: '' }; saveData(data); }
   document.getElementById('dinnerDate').value = today;
   document.getElementById('dinnerMenu').value = d.today.menu || '';
   document.getElementById('dinnerTime').value = d.today.time || '';

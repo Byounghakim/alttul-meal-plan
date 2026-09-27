@@ -18,10 +18,11 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);line-height:1.6}
 #root{max-width:480px;margin:0 auto;padding:16px 16px 100px}
-header{text-align:center;margin-bottom:20px;position:relative}
+header{text-align:center;margin-bottom:20px;position:relative;padding-right:90px}
 header h1{font-size:24px;font-weight:700;margin-bottom:4px}
 header h1 span{color:var(--accent)}
 header .sub{font-size:14px;color:var(--text2)}
+header .parent-link{position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12px;color:var(--text2);text-decoration:none;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:var(--card)}header .parent-link:hover{border-color:var(--accent);color:var(--accent)}
 .sync{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--tag);color:var(--text2);margin-bottom:16px}
 .sync.on{background:var(--okL);color:var(--ok)}
 .sync.off{background:var(--warnL);color:var(--warn)}
@@ -85,42 +86,42 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
   <section class="card">
     <h2>👨‍👦 오늘 저녁 어떻게 먹니?</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-      <div style="border:2px solid var(--minwoo);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minwooL) 0%,#fff 100%)">
-        <div style="font-weight:800;color:var(--minwoo);font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:6px">👦 민우</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <label class="checkin-opt" data-child="minwoo" data-value="집에서 먹음" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:20px;height:20px;accent-color:var(--minwoo);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+      <div style="border:2px solid var(--minwoo);border-radius:16px;padding:14px;background:linear-gradient(135deg,var(--minwooL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minwoo);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:6px">👦 민우</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label class="checkin-opt" data-child="minwoo" data-value="집에서 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_home" value="집에서 먹음" onchange="setCheckin('minwoo','집에서 먹음')" style="width:18px;height:18px;accent-color:var(--minwoo);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
           </label>
-          <label class="checkin-opt" data-child="minwoo" data-value="외식" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')" style="width:20px;height:20px;accent-color:var(--minjun);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
+          <label class="checkin-opt" data-child="minwoo" data-value="외식" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_out" value="외식" onchange="setCheckin('minwoo','외식')" style="width:18px;height:18px;accent-color:var(--minjun);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
           </label>
-          <label class="checkin-opt" data-child="minwoo" data-value="안 먹음" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minwoo_skip" value="안 먹음" onchange="setCheckin('minwoo','안 먹음')" style="width:20px;height:20px;accent-color:var(--danger);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
+          <label class="checkin-opt" data-child="minwoo" data-value="안 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minwoo_skip" value="안 먹음" onchange="setCheckin('minwoo','안 먹음')" style="width:18px;height:18px;accent-color:var(--danger);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
           </label>
         </div>
-        <div id="cinMinwooStatus" style="margin-top:10px;padding:8px 12px;background:#f0fdf4;border-radius:8px;text-align:center;font-weight:700;color:var(--ok);font-size:13px;display:none"></div>
+        <div id="cinMinwooStatus" style="margin-top:8px;padding:6px 10px;background:#f0fdf4;border-radius:8px;text-align:center;font-weight:700;color:var(--ok);font-size:12px;display:none"></div>
       </div>
 
-      <div style="border:2px solid var(--minjun);border-radius:16px;padding:16px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
-        <div style="font-weight:800;color:var(--minjun);font-size:17px;margin-bottom:12px;display:flex;align-items:center;gap:6px">👦 민준</div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <label class="checkin-opt" data-child="minjun" data-value="집에서 먹음" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')" style="width:20px;height:20px;accent-color:var(--minwoo);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
+      <div style="border:2px solid var(--minjun);border-radius:16px;padding:14px;background:linear-gradient(135deg,var(--minjunL) 0%,#fff 100%)">
+        <div style="font-weight:800;color:var(--minjun);font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:6px">👦 민준</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <label class="checkin-opt" data-child="minjun" data-value="집에서 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_home" value="집에서 먹음" onchange="setCheckin('minjun','집에서 먹음')" style="width:18px;height:18px;accent-color:var(--minwoo);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🏠 집</span>
           </label>
-          <label class="checkin-opt" data-child="minjun" data-value="외식" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')" style="width:20px;height:20px;accent-color:var(--minjun);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
+          <label class="checkin-opt" data-child="minjun" data-value="외식" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_out" value="외식" onchange="setCheckin('minjun','외식')" style="width:18px;height:18px;accent-color:var(--minjun);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">🍽️ 외식</span>
           </label>
-          <label class="checkin-opt" data-child="minjun" data-value="안 먹음" style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
-            <input type="checkbox" name="cin_minjun_skip" value="안 먹음" onchange="setCheckin('minjun','안 먹음')" style="width:20px;height:20px;accent-color:var(--danger);flex-shrink:0">
-            <span style="font-size:15px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
+          <label class="checkin-opt" data-child="minjun" data-value="안 먹음" style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s">
+            <input type="checkbox" name="cin_minjun_skip" value="안 먹음" onchange="setCheckin('minjun','안 먹음')" style="width:18px;height:18px;accent-color:var(--danger);flex-shrink:0">
+            <span style="font-size:14px;font-weight:600;color:var(--text);white-space:nowrap">❌ 안먹음</span>
           </label>
         </div>
-        <div id="cinMinjunStatus" style="margin-top:10px;padding:8px 12px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:700;color:var(--warn);font-size:13px;display:none"></div>
+        <div id="cinMinjunStatus" style="margin-top:8px;padding:6px 10px;background:#fef3c7;border-radius:8px;text-align:center;font-weight:700;color:var(--warn);font-size:12px;display:none"></div>
       </div>
     </div>
     <style>

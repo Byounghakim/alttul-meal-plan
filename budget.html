@@ -10,9 +10,10 @@
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);font-family:'Pretendard Variable',-apple-system,BlinkMacSystemFont,sans-serif;color:var(--text);line-height:1.6}
 #root{max-width:480px;margin:0 auto;padding:20px 16px 80px}
-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap;position:relative}
 header h1{font-size:22px;font-weight:700}header h1 span{color:var(--accent)}
 a.back{font-size:13px;color:var(--text2);text-decoration:none;padding:6px 12px;border:1px solid var(--border);border-radius:999px;background:var(--card)}a.back:hover{border-color:var(--accent);color:var(--accent)}
+.header-right{display:flex;align-items:center;gap:8px}
 .sync{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:4px 10px;border-radius:999px;background:var(--tag);color:var(--text2);margin-bottom:16px}
 .sync.on{background:var(--okL);color:var(--ok)}.sync.off{background:var(--warnL);color:var(--warn)}
 .card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:16px 18px;margin-bottom:16px}
@@ -42,7 +43,7 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
 </head>
 <body>
 <div id="root">
-  <header><h1>🔒 <span>알뜰이</span> 부모 모드</h1><a href="index.html" class="back">← 가족 페이지</a></header>
+  <header><h1>🔒 <span>알뜰이</span> 부모 모드</h1><div class="header-right"><a href="index.html" class="back">← 가족 페이지</a></div></header>
   <div id="syncBadge" class="sync off">⚪ 오프라인 · 로컬 저장 중</div>
 
   <section class="card">
@@ -52,8 +53,11 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       <input type="text" id="dinnerMenu" placeholder="메뉴 (예: 제육볶음 + 밥)">
     </div>
     <div class="input-row">
-      <input type="time" id="dinnerTime" class="small">
-      <input type="text" id="dinnerPlace" placeholder="장소 (예: 집)" class="small">
+      <input type="time" id="dinnerTimeMinwoo" placeholder="민우 시간" class="small">
+      <input type="time" id="dinnerTimeMinjun" placeholder="민준 시간" class="small">
+    </div>
+    <div class="input-row">
+      <input type="text" id="dinnerPlace" placeholder="장소 (예: 집)">
     </div>
     <div class="btn-group">
       <button class="btn primary" onclick="saveDinner()">저장하고 가족 페이지에 반영</button>
@@ -136,11 +140,16 @@ setInterval(pull,5000);window.addEventListener('focus',pull);data=load();pull();
 
 function render(){
   const d=data.dinner, td=today();
-  if(d.today.date!==td){d.today={date:td,menu:'',time:'',place:''};d.checkin={minwoo:'',minjun:''};save()}
+  if(d.today.date!==td){d.today={date:td,menu:'',time:'',timeMinjun:'',place:''};d.checkin={minwoo:'',minjun:''};save()}
+  const menuEl=document.getElementById('dinnerMenu');
+  const time1El=document.getElementById('dinnerTimeMinwoo');
+  const time2El=document.getElementById('dinnerTimeMinjun');
+  const placeEl=document.getElementById('dinnerPlace');
+  if(document.activeElement!==menuEl) menuEl.value=d.today.menu||'';
+  if(document.activeElement!==time1El) time1El.value=d.today.time||'';
+  if(document.activeElement!==time2El) time2El.value=d.today.timeMinjun||'';
+  if(document.activeElement!==placeEl) placeEl.value=d.today.place||'';
   document.getElementById('dinnerDate').value=td;
-  document.getElementById('dinnerMenu').value=d.today.menu||'';
-  document.getElementById('dinnerTime').value=d.today.time||'';
-  document.getElementById('dinnerPlace').value=d.today.place||'';
   ['minwoo','minjun'].forEach(k=>{
     const s=d.checkin[k]||'확인 안 함';
     document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)).textContent=s;
@@ -151,15 +160,16 @@ function render(){
 function saveDinner(){
   const date=document.getElementById('dinnerDate').value;
   const menu=document.getElementById('dinnerMenu').value.trim();
-  const time=document.getElementById('dinnerTime').value;
+  const timeMinwoo=document.getElementById('dinnerTimeMinwoo').value;
+  const timeMinjun=document.getElementById('dinnerTimeMinjun').value;
   const place=document.getElementById('dinnerPlace').value.trim();
   if(!menu)return alert('메뉴를 입력하세요');
   const td=today();
-  data.dinner.today={date,menu,time,place};
+  data.dinner.today={date,menu,time:timeMinwoo,timeMinjun,place};
   const hist=data.dinner.history;
   const idx=hist.findIndex(h=>h.date===date);
-  if(idx>=0)hist[idx]={date,menu,time,place,checkin:data.dinner.checkin};
-  else hist.unshift({date,menu,time,place,checkin:data.dinner.checkin});
+  if(idx>=0)hist[idx]={date,menu,time:timeMinwoo,timeMinjun,place,checkin:data.dinner.checkin};
+  else hist.unshift({date,menu,time:timeMinwoo,timeMinjun,place,checkin:data.dinner.checkin});
   if(hist.length>60)hist.length=60;
   save();render();alert('저장 완료! 가족 페이지에 반영되었습니다.');
 }

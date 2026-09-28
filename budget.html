@@ -53,8 +53,8 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       <input type="text" id="dinnerMenu" placeholder="메뉴 (예: 제육볶음 + 밥)">
     </div>
     <div class="input-row">
-      <input type="time" id="dinnerTimeMinwoo" placeholder="민우 시간" class="small">
-      <input type="time" id="dinnerTimeMinjun" placeholder="민준 시간" class="small">
+      <input type="time" id="dinnerTime1" placeholder="1차 시간" class="small">
+      <input type="time" id="dinnerTime2" placeholder="2차 시간" class="small">
     </div>
     <div class="input-row">
       <input type="text" id="dinnerPlace" placeholder="장소 (예: 집)">
@@ -86,7 +86,88 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
     <div id="memoList"></div>
   </section>
 
-  <footer>🔒 <strong>알뜰이 부모 모드</strong> · 저녁 설정·확인 전용<br><a href="index.html" style="color:var(--accent)">← 가족 페이지로</a></footer>
+  <section class="card" id="budgetSection">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <h2>💰 이번 달 가계부</h2>
+    <button class="btn primary" style="font-size:12px;padding:6px 10px" onclick="showBudgetModal()">예산 설정</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+    <div style="background:var(--okL);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:11px;color:var(--ok);font-weight:600">예산</div>
+      <div id="budgetTotal" style="font-size:20px;font-weight:700;color:var(--ok)">0원</div>
+    </div>
+    <div style="background:var(--dangerL);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:11px;color:var(--danger);font-weight:600">지출</div>
+      <div id="budgetSpent" style="font-size:20px;font-weight:700;color:var(--danger)">0원</div>
+    </div>
+  </div>
+  <div style="background:var(--card);border-radius:10px;padding:12px;text-align:center;margin-bottom:12px">
+    <div style="font-size:11px;color:var(--text2);font-weight:600">잔액</div>
+    <div id="budgetLeft" style="font-size:22px;font-weight:700;color:var(--text)">0원</div>
+  </div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:8px">최근 지출</div>
+  <div id="expenseList" style="max-height:200px;overflow-y:auto"></div>
+  <div style="margin-top:10px;text-align:center">
+    <button class="btn" onclick="showAddExpenseModal()">지출 추가</button>
+  </div>
+</section>
+
+<div id="budgetModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:24px;width:100%;max-width:400px">
+    <h3 style="margin-bottom:16px;font-size:18px">💰 월 예산 설정</h3>
+    <input type="number" id="budgetInput" placeholder="월 예산 (원)" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px;margin-bottom:16px">
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1" onclick="hideBudgetModal()">취소</button>
+      <button class="btn primary" style="flex:1" onclick="saveBudget()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div id="expenseModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:24px;width:100%;max-width:400px">
+    <h3 style="margin-bottom:16px;font-size:18px">💸 지출 추가</h3>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">날짜</label>
+      <input type="date" id="expenseDate" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">카테고리</label>
+      <select id="expenseCategory" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+        <option value="식비">🍽️ 식비</option>
+        <option value="장보기">🛒 장보기</option>
+        <option value="외식">🍖 외식</option>
+        <option value="간식">🍪 간식</option>
+        <option value="기타">📦 기타</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">내역</label>
+      <input type="text" id="expenseName" placeholder="내역 (예: 마트 장보기, 치킨)" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">금액</label>
+      <input type="number" id="expenseAmount" placeholder="금액 (원)" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">결제수단</label>
+      <select id="expensePayment" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+        <option value="카드">💳 카드</option>
+        <option value="현금">💵 현금</option>
+        <option value="상품권">🎟️ 상품권</option>
+      </select>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--text2);display:block;margin-bottom:4px">메모</label>
+      <input type="text" id="expenseMemo" placeholder="메모 (선택)" style="width:100%;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:16px">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" style="flex:1" onclick="hideExpenseModal()">취소</button>
+      <button class="btn primary" style="flex:1" onclick="saveExpense()">저장</button>
+    </div>
+  </div>
+</div>
+
+<footer>🔒 <strong>알뜰이 부모 모드</strong> · 저녁 설정·확인 전용<br><a href="index.html" style="color:var(--accent)">← 가족 페이지로</a></footer>
 </div>
 
 <script>
@@ -94,10 +175,10 @@ const KEY='alttul-family-2026';
 const SYNC='https://macbook-pro-54.tail1e8f41.ts.net/api/state';
 const LIST='family-2026';
 const $sync=document.getElementById('syncBadge');
-let data={dinner:{today:{date:'',menu:'',time:'',timeMinjun:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]}};
+let data={dinner:{today:{date:'',menu:'',time:'',timeMinjun:'',place:''},checkin:{minwoo:'',minjun:''},checkinTime:{minwoo:'',minjun:''},checkinPhoto:{minwoo:'',minjun:''},memos:[],history:[]},budget:{monthly:0,expenses:[]}};
 
 function today(){return new Date().toISOString().slice(0,10)}
-function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',place:''},checkin:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',place:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[]}return data}catch(e){return data}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v){data=v;data.dinner=data.dinner||{today:{date:'',menu:'',time:'',timeMinjun:'',place:''},checkin:{minwoo:'',minjun:''},checkinTime:{minwoo:'',minjun:''},checkinPhoto:{minwoo:'',minjun:''},memos:[],history:[]};data.dinner.today=data.dinner.today||{date:'',menu:'',time:'',timeMinjun:'',place:''};data.dinner.checkin=data.dinner.checkin||{minwoo:'',minjun:''};data.dinner.checkinTime=data.dinner.checkinTime||{minwoo:'',minjun:''};data.dinner.checkinPhoto=data.dinner.checkinPhoto||{minwoo:'',minjun:''};data.dinner.memos=data.dinner.memos||[];data.dinner.history=data.dinner.history||[];data.budget=data.budget||{monthly:0,expenses:[]}}return data}catch(e){return data}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(data))}catch(e){}push()}
 async function push(){
   try{
@@ -130,9 +211,14 @@ function merge(local,remote){
     m.dinner={
       today:ld.today||rd.today||{date:'',menu:'',time:'',timeMinjun:'',place:''},
       checkin:rd.checkin||ld.checkin||{minwoo:'',minjun:''},
+      checkinTime:rd.checkinTime||ld.checkinTime||{minwoo:'',minjun:''},
+      checkinPhoto:rd.checkinPhoto||ld.checkinPhoto||{minwoo:'',minjun:''},
       memos:[...(ld.memos||[]),...(rd.memos||[])].filter((x,i,a)=>a.findIndex(y=>y.t===x.t)===i),
       history:[...(ld.history||[]),...(rd.history||[])].filter((x,i,a)=>a.findIndex(y=>y.date===x.date&&y.menu===x.menu)===i)
     };
+  }
+  if(remote.budget){
+    m.budget=remote.budget;
   }
   return m;
 }
@@ -142,8 +228,8 @@ function render(){
   const d=data.dinner, td=today();
   if(d.today.date!==td){d.today={date:td,menu:'',time:'',timeMinjun:'',place:''};d.checkin={minwoo:'',minjun:''};save()}
   const menuEl=document.getElementById('dinnerMenu');
-  const time1El=document.getElementById('dinnerTimeMinwoo');
-  const time2El=document.getElementById('dinnerTimeMinjun');
+  const time1El=document.getElementById('dinnerTime1');
+  const time2El=document.getElementById('dinnerTime2');
   const placeEl=document.getElementById('dinnerPlace');
   if(document.activeElement!==menuEl) menuEl.value=d.today.menu||'';
   if(document.activeElement!==time1El) time1El.value=d.today.time||'';
@@ -152,7 +238,8 @@ function render(){
   document.getElementById('dinnerDate').value=td;
   ['minwoo','minjun'].forEach(k=>{
     const s=d.checkin[k]||'확인 안 함';
-    document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)).textContent=s;
+    const timeDisplay = d.checkinTime[k] || (k === 'minwoo' ? d.today.time : d.today.timeMinjun) || '';
+    document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)).textContent=s + (timeDisplay ? ' · ' + timeDisplay : '');
     document.getElementById('cit'+k[0].toUpperCase()+k.slice(1)).textContent=d.checkin[k]?new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';
   });
   renderMemos();
@@ -160,25 +247,34 @@ function render(){
 function saveDinner(){
   const date=document.getElementById('dinnerDate').value;
   const menu=document.getElementById('dinnerMenu').value.trim();
-  const timeMinwoo=document.getElementById('dinnerTimeMinwoo').value;
-  const timeMinjun=document.getElementById('dinnerTimeMinjun').value;
+  const time1=document.getElementById('dinnerTime1').value;
+  const time2=document.getElementById('dinnerTime2').value;
   const place=document.getElementById('dinnerPlace').value.trim();
   if(!menu)return alert('메뉴를 입력하세요');
   const td=today();
-  data.dinner.today={date,menu,time:timeMinwoo,timeMinjun,place};
+  data.dinner.today={date,menu,time:time1,timeMinjun:time2,place};
   const hist=data.dinner.history;
   const idx=hist.findIndex(h=>h.date===date);
-  if(idx>=0)hist[idx]={date,menu,time:timeMinwoo,timeMinjun,place,checkin:data.dinner.checkin};
-  else hist.unshift({date,menu,time:timeMinwoo,timeMinjun,place,checkin:data.dinner.checkin});
+  if(idx>=0)hist[idx]={date,menu,time:time1,timeMinjun:time2,place,checkin:data.dinner.checkin};
+  else hist.unshift({date,menu,time:time1,timeMinjun:time2,place,checkin:data.dinner.checkin});
   if(hist.length>60)hist.length=60;
   save();render();alert('저장 완료! 가족 페이지에 반영되었습니다.');
 }
-function clearDinner(){if(!confirm('오늘 저녁 메뉴를 비우시겠습니까?'))return;const td=today();data.dinner.today={date:td,menu:'',time:'',place:''};save();render();}
+function clearDinner(){if(!confirm('오늘 저녁 메뉴를 비우시겠습니까?'))return;const td=today();data.dinner.today={date:td,menu:'',time:'',timeMinjun:'',place:''};data.dinner.checkinTime={minwoo:'',minjun:''};save();render();}
 function today(){return new Date().toISOString().slice(0,10)}
-function renderMemos(){
-  const $l=document.getElementById('memoList');
-  $l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'memo-done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없습니다.</div>';
-}
+function formatNum(n){return n.toLocaleString();}
+function renderMemos(){const $l=document.getElementById('memoList');$l.innerHTML=data.dinner.memos.map((m,i)=>`<div class="memo-item ${m.child} ${m.done?'memo-done':''}" onclick="toggleMemo(${i})"><div class="memo-top"><span class="memo-name ${m.child}">${m.child==='minwoo'?'👦 민우':'👦 민준'}</span><span class="memo-time">${m.time}</span></div><div class="memo-text">${m.text}</div></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">아직 요청사항이 없습니다.</div>';}
+function toggleMemo(i){data.dinner.memos[i].done=!data.dinner.memos[i].done;save();renderMemos();}
+
+// ===== 가계부 기능 =====
+function showBudgetModal(){document.getElementById('budgetModal').style.display='flex';document.getElementById('budgetInput').value=data.budget.monthly||'';}
+function hideBudgetModal(){document.getElementById('budgetModal').style.display='none';}
+function saveBudget(){const v=parseInt(document.getElementById('budgetInput').value)||0;data.budget.monthly=v;save();renderBudget();hideBudgetModal();}
+function showAddExpenseModal(){document.getElementById('expenseModal').style.display='flex';document.getElementById('expenseDate').value=today();}
+function hideExpenseModal(){document.getElementById('expenseModal').style.display='none';}
+function saveExpense(){const date=document.getElementById('expenseDate').value;const category=document.getElementById('expenseCategory').value;const name=document.getElementById('expenseName').value.trim();const amount=parseInt(document.getElementById('expenseAmount').value)||0;const payment=document.getElementById('expensePayment').value;const memo=document.getElementById('expenseMemo').value.trim();if(!name||!amount)return alert('내역과 금액을 입력하세요');data.budget.expenses.unshift({date,category,name,amount,payment,memo,t:Date.now()});save();renderBudget();hideExpenseModal();}
+function renderBudget(){document.getElementById('budgetTotal').textContent=formatNum(data.budget.monthly)+'원';const spent=data.budget.expenses.reduce((s,e)=>s+(e.amount||0),0);document.getElementById('budgetSpent').textContent=formatNum(spent)+'원';const left=data.budget.monthly-spent;document.getElementById('budgetLeft').textContent=formatNum(Math.max(0,left))+'원';const $l=document.getElementById('expenseList');$l.innerHTML=data.budget.expenses.map(e=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span>${e.date} ${e.category} ${e.name} ${e.memo?'('+e.memo+')':''}</span><span style="color:var(--danger)">-${formatNum(e.amount)}원</span></div>`).join('')||'<div style="text-align:center;color:var(--text2);padding:16px">지출 내역이 없습니다.</div>';}
+function formatNum(n){return n.toLocaleString();}
 function toggleMemo(i){data.dinner.memos[i].done=!data.dinner.memos[i].done;save();renderMemos();}
 render();
 </script>

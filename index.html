@@ -149,6 +149,9 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
       </div>
       <div id="cinMinwooStatus" class="checkin-status minwoo"></div>
       
+      <!-- 민우 사진 미리보기 -->
+      <img id="minwooPhotoPreview" class="dinner-photo" alt="민우 사진" onclick="openPhotoModal(this.src)" style="display:none">
+      
       <!-- 민우 사진 업로드 -->
       <div id="minwooPhotoUpload" class="photo-upload" style="display:none;margin-top:12px">
         <input type="file" id="minwooPhotoInput" accept="image/*" onchange="uploadPhoto('minwoo',this)" style="display:none">
@@ -178,6 +181,9 @@ footer{text-align:center;padding-top:24px;border-top:1px solid var(--border);fon
         </label>
       </div>
       <div id="cinMinjunStatus" class="checkin-status minjun"></div>
+
+      <!-- 민준 사진 미리보기 -->
+      <img id="minjunPhotoPreview" class="dinner-photo" alt="민준 사진" onclick="openPhotoModal(this.src)" style="display:none">
 
       <!-- 민준 사진 업로드 -->
       <div id="minjunPhotoUpload" class="photo-upload" style="display:none;margin-top:12px">
@@ -307,6 +313,16 @@ function render(){
     }
     const $photoUpload = document.getElementById(k+'PhotoUpload');
     if($photoUpload) $photoUpload.style.display = isHome ? 'flex' : 'none';
+    // 사진 미리보기 표시
+    const $photoPreview = document.getElementById(k+'PhotoPreview');
+    if($photoPreview){
+      if(d.checkinPhoto?.[k]){
+        $photoPreview.src = d.checkinPhoto[k];
+        $photoPreview.style.display = 'block';
+      }else{
+        $photoPreview.style.display = 'none';
+      }
+    }
     const $s = document.getElementById('cin'+k[0].toUpperCase()+k.slice(1)+'Status');
     if ($s) {
       const timeDisplay = (d.checkinTime?.[k] || d.today?.time || (k === 'minjun' ? d.today?.timeMinjun : '') || '').trim();
